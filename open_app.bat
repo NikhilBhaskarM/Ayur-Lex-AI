@@ -10,7 +10,7 @@ if %ERRORLEVEL% equ 0 (
 )
 
 :: Start the server in background if not already running
-start "" /b "%~dp0backend\.venv\Scripts\python.exe" -m uvicorn app.main:app --app-dir "%~dp0backend" --port 8000
+start "" /b "%~dp0backend\.venv\Scripts\python.exe" -m uvicorn app.main:app --app-dir "%~dp0backend" --host 0.0.0.0 --port 8000
 
 :: Poll until port 8000 is ready
 set count=0
