@@ -1,0 +1,69 @@
+# =============================================================================
+# Ayurvedic IPR & Regulatory AI Assistant — Python Dependencies
+# =============================================================================
+
+# Web Framework & Core
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pydantic[email]==2.10.4
+email-validator>=2.0.0
+pydantic-settings==2.7.0
+python-multipart==0.0.18
+
+# Database & ORM
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+greenlet==3.1.1
+
+# Vector Database
+qdrant-client==1.12.1
+
+# Redis
+redis[hiredis]==5.2.1
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# LLM
+openai==1.58.1
+
+# Embeddings (local)
+sentence-transformers==3.3.1
+
+# Reranking
+flashrank==0.2.9
+
+# Document Parsing
+PyMuPDF==1.25.1
+beautifulsoup4==4.12.3
+trafilatura==2.0.0
+html2text==2024.2.26
+
+# Text Processing
+rank-bm25==0.2.2
+tiktoken==0.8.0
+
+# PDF Generation
+reportlab==4.2.5
+
+# HTTP
+httpx==0.28.1
+aiohttp==3.11.11
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Utilities
+python-dotenv==1.0.1
+structlog==24.4.0
+uuid6==2024.7.10
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+httpx==0.28.1

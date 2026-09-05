@@ -1,0 +1,132 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ayurveda_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ayurveda
+      POSTGRES_PASSWORD: ayurveda_secret
+      POSTGRES_DB: ayurveda_ipr
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ayurveda -d ayurveda_ipr"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ayurveda_network
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: ayurveda_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - ayurveda_network
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7.4-alpine
+    container_name: ayurveda_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ayurveda_redis_secret --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "ayurveda_redis_secret", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - ayurveda_network
+
+  # Ollama Local LLM Server
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ayurveda_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - ayurveda_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ayurveda_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ayurveda:ayurveda_secret@postgres:5432/ayurveda_ipr
+      DATABASE_URL_SYNC: postgresql://ayurveda:ayurveda_secret@postgres:5432/ayurveda_ipr
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://:ayurveda_redis_secret@redis:6379/0
+      LLM_BASE_URL: http://ollama:11434/v1
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+      - backend_data:/app/data
+    networks:
+      - ayurveda_network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ayurveda_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    environment:
+      VITE_API_URL: http://localhost:8000
+    networks:
+      - ayurveda_network
+
+volumes:
+  postgres_data:
+  qdrant_storage:
+  redis_data:
+  ollama_models:
+  backend_data:
+
+networks:
+  ayurveda_network:
+    driver: bridge
