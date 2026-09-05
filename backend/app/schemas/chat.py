@@ -34,8 +34,12 @@ class ChatMessageResponse(BaseModel):
     requires_clarification: bool
     clarification_questions: List[str]
     disclaimer: str
+    tier: Optional[str] = None
+    model_name: Optional[str] = None
+    statutory_risk: Optional[dict[str, Any]] = None
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class ConversationListResponse(BaseModel):
     id: UUID

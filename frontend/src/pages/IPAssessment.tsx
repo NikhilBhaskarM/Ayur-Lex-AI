@@ -11,9 +11,13 @@ import {
   RotateCcw,
   Scale,
   Brain,
+  Box,
+  Layers,
 } from 'lucide-react';
+import LegalChamberPanel from '@/components/LegalChamberPanel';
 
 const IPAssessment: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'standard' | '3d-chamber'>('standard');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [innovation, setInnovation] = useState('');
@@ -33,6 +37,7 @@ const IPAssessment: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-10">
+
 
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-teal-950 to-emerald-900 p-7 sm:p-9 text-white shadow-xl">
@@ -69,7 +74,54 @@ const IPAssessment: React.FC = () => {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      {/* VIEW TOGGLE BAR */}
+      <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+            <button
+              onClick={() => setViewMode('standard')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition ${
+                viewMode === 'standard'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers size={15} />
+              Standard Assessment
+            </button>
+            <button
+              onClick={() => setViewMode('3d-chamber')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition ${
+                viewMode === '3d-chamber'
+                  ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Box size={15} />
+              Multi-LLM Chamber
+              <span className="rounded-full bg-teal-400/20 px-1.5 py-0.2 text-[10px] uppercase tracking-wider font-extrabold text-teal-200 border border-teal-400/30">
+                Debate
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <p className="hidden sm:block text-xs text-slate-500 font-medium">
+          {viewMode === '3d-chamber'
+            ? 'Multi-LLM Adversarial Debate · Applicant vs Examiner vs Judicial Arbiter'
+            : 'Structured patentability & prior-art intake assessment'}
+        </p>
+      </div>
+
+      {viewMode === '3d-chamber' ? (
+        <LegalChamberPanel
+          initialTitle={title}
+          initialDescription={description}
+          initialInnovation={innovation}
+        />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-5">
+
 
         {/* FORM */}
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-3">
@@ -353,17 +405,29 @@ const IPAssessment: React.FC = () => {
 
               </div>
 
-              <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-700 transition hover:bg-teal-100">
-                <Scale size={16} />
-                View detailed IP report
-                <ArrowRight size={16} />
-              </button>
+              <div className="mt-6 space-y-2">
+                <button
+                  onClick={() => setViewMode('3d-chamber')}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110"
+                >
+                  <Scale size={16} />
+                  Simulate in 3D Legal Chamber
+                  <ArrowRight size={16} />
+                </button>
+
+                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-xs font-semibold text-teal-700 transition hover:bg-teal-100">
+                  <FileText size={15} />
+                  View detailed statutory IP report
+                </button>
+              </div>
 
             </div>
           )}
 
         </section>
       </div>
+      )}
+
 
       {/* DISCLAIMER */}
       <div className="flex items-start gap-3 rounded-2xl border border-amber-100 bg-white p-5 shadow-sm">

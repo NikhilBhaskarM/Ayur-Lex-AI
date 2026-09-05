@@ -13,6 +13,7 @@ import {
   Settings,
   X,
   Sparkles,
+  Scale,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Legal Chamber', path: '/chamber', icon: Scale },
     { name: 'AI Assistant', path: '/chat', icon: MessageSquare },
     { name: 'Classification', path: '/classify', icon: Layers },
     { name: 'IP Assessment', path: '/ip-assessment', icon: Shield },
@@ -34,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     { name: 'Assessments', path: '/assessments', icon: FileText },
     { name: 'Human Review', path: '/review', icon: Users },
   ];
+
 
   return (
     <aside className="flex h-full flex-col bg-slate-950 text-white">

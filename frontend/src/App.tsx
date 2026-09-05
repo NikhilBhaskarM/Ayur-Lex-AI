@@ -14,6 +14,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Settings from './pages/Settings';
+import LegalChamberPanel from './components/LegalChamberPanel';
 import { useAuthStore } from '@/store/authStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -37,9 +38,11 @@ function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="chamber" element={<div className="pb-10"><LegalChamberPanel /></div>} />
         <Route path="chat" element={<Chat />} />
         <Route path="classify" element={<Classify />} />
         <Route path="ip-assessment" element={<IPAssessment />} />
+
         <Route path="abs" element={<ABSCompliance />} />
         <Route path="tk" element={<TKSearch />} />
         <Route path="sources" element={<Sources />} />

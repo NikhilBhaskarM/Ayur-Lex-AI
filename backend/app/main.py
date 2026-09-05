@@ -96,6 +96,58 @@ def create_app() -> FastAPI:
     from app.api.router import api_router
     app.include_router(api_router, prefix="/api/v1")
 
+    # Direct mount for debate WebSocket streaming
+    from app.api.v1.debate_stream import router as debate_router
+    app.include_router(debate_router, prefix="/api/v1/ws", tags=["debate"])
+    app.include_router(debate_router, prefix="/ws", tags=["debate"])
+
+    # -----------------------------------------------------------------
+    # Frontend Static Asset Mounting & SPA Client Routing (Option A)
+    # Strictly mounted AFTER all /api, /ws, and OpenAPI route definitions
+    # -----------------------------------------------------------------
+    import os
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+    from fastapi import HTTPException
+
+    # Resolve repo root and frontend/dist
+    backend_app_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(os.path.dirname(backend_app_dir))
+    dist_path = os.path.join(repo_root, "frontend", "dist")
+
+    if os.path.isdir(dist_path):
+        assets_dir = os.path.join(dist_path, "assets")
+        if os.path.isdir(assets_dir):
+            app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+        locales_dir = os.path.join(dist_path, "locales")
+        if os.path.isdir(locales_dir):
+            app.mount("/locales", StaticFiles(directory=locales_dir), name="locales")
+
+        @app.get("/", include_in_schema=False)
+        async def serve_root():
+            index_path = os.path.join(dist_path, "index.html")
+            if os.path.isfile(index_path):
+                return FileResponse(index_path)
+            raise HTTPException(status_code=404, detail="Frontend index.html not found")
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def serve_spa_catchall(full_path: str):
+            # Do not intercept unmatched API, WebSocket, or docs routes
+            if full_path.startswith("api/") or full_path.startswith("ws/") or full_path in ("docs", "redoc", "openapi.json"):
+                raise HTTPException(status_code=404, detail="Route not found")
+
+            # Serve matching static file in frontend/dist if present (e.g., favicon, vite.svg)
+            target_path = os.path.join(dist_path, full_path)
+            if full_path and os.path.isfile(target_path):
+                return FileResponse(target_path)
+
+            # Fallback to index.html for client-side routing
+            index_path = os.path.join(dist_path, "index.html")
+            if os.path.isfile(index_path):
+                return FileResponse(index_path)
+            raise HTTPException(status_code=404, detail="Frontend index.html not found")
+
     return app
 
 

@@ -59,10 +59,14 @@ uploads/
 logs/
 
 # ML Models (large files)
-models/
+/models/
 *.bin
 *.onnx
 *.safetensors
+!backend/app/models/
+
+# Scratch & Temporary Testing Files
+scratch/
 
 # OS
 .DS_Store

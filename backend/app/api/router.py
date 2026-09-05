@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1 import (
     auth, health, chat, classification, sources, admin, assessments,
-    ip_assessment, abs_compliance, tk_search, human_review
+    ip_assessment, abs_compliance, tk_search, human_review, debate_stream
 )
 
 api_router = APIRouter()
@@ -17,3 +17,5 @@ api_router.include_router(sources.router, prefix="/sources", tags=["sources"])
 api_router.include_router(assessments.router, prefix="/assessments", tags=["assessments"])
 api_router.include_router(human_review.router, prefix="/human-review", tags=["human_review"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(debate_stream.router, prefix="/ws", tags=["debate"])
+

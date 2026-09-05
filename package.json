@@ -1,0 +1,13 @@
+{
+  "name": "ayur-lex-ai",
+  "version": "1.0.0",
+  "description": "Ayur-Lex-AI: Ayurvedic Intellectual Property & Regulatory AI Assistant",
+  "private": true,
+  "scripts": {
+    "start": "uvicorn app.main:app --app-dir backend --port 8000",
+    "dev": "uvicorn app.main:app --app-dir backend --port 8000 --reload",
+    "build": "npm run build --prefix frontend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "uvicorn app.main:app --app-dir backend --port 8000 --reload"
+  }
+}

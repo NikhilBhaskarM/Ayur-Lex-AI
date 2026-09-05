@@ -10,6 +10,7 @@ from app.rag.pipeline import RAGPipeline
 from app.rag.retriever import HybridRetriever
 from app.rag.vector_search import VectorStore
 from app.rag.keyword_search import KeywordSearcher
+from app.rag.adaptive_router import AdaptiveRouter
 
 logger = structlog.get_logger(__name__)
 
@@ -25,6 +26,7 @@ def _create_rag_pipeline() -> RAGPipeline:
 class ChatService:
     def __init__(self):
         self._rag_pipeline: Optional[RAGPipeline] = None
+        self.router = AdaptiveRouter()
 
     @property
     def rag_pipeline(self) -> RAGPipeline:
@@ -32,6 +34,7 @@ class ChatService:
         if self._rag_pipeline is None:
             self._rag_pipeline = _create_rag_pipeline()
         return self._rag_pipeline
+
 
     async def process_message(
         self,
@@ -85,7 +88,45 @@ class ChatService:
             messages = result.scalars().all()
             history = [{"role": m.role, "content": m.content} for m in messages][-10:]
 
-            # Run RAG pipeline
+            # Non-destructively triage query tier
+            triage = self.router.classify_query(sanitized_message)
+
+            # TIER 1 Fast Path: Sub-second generation via General AI Reasoner (bypassing vector search)
+            if triage.tier == "simple":
+                # Enforce domain framing: prepend context-forcing prompt instruction
+                context_forced_query = self.router.apply_domain_context(sanitized_message, tier="simple")
+                answer, clarification_questions = self.rag_pipeline.general_ai_reasoner.synthesize_general_answer(
+                    context_forced_query, history
+                )
+                citations = self.rag_pipeline.citation_engine.extract_citations(answer, [])
+                citation_dicts = [asdict(c) for c in citations] if citations else []
+                asst_msg = Message(
+                    id=uuid.uuid4(),
+                    conversation_id=conversation.id,
+                    role="assistant",
+                    content=answer,
+                    citations=citation_dicts,
+                    confidence="HIGH",
+                    confidence_score=0.98,
+                )
+                db.add(asst_msg)
+                await db.commit()
+                return {
+                    "conversation_id": conversation.id,
+                    "message_id": asst_msg.id,
+                    "answer": answer,
+                    "citations": citation_dicts,
+                    "confidence": {"level": "HIGH", "score": 0.98, "factors": {"fast_slm": 1.0}},
+                    "jurisdiction": jurisdiction or conversation.jurisdiction or "india",
+                    "requires_clarification": len(clarification_questions) > 0,
+                    "clarification_questions": clarification_questions,
+                    "disclaimer": "This information is for informational purposes only and does not constitute legal advice.",
+                    "tier": triage.tier,
+                    "model_name": triage.model_name,
+                    "statutory_risk": triage.statutory_risk_prediction,
+                }
+
+            # TIER 2 & TIER 3: Run RAG pipeline with Hybrid Search and Statutory Adjudication
             try:
                 rag_response = await self.rag_pipeline.query(
                     user_query=sanitized_message,
@@ -119,6 +160,9 @@ class ChatService:
                     "requires_clarification": False,
                     "clarification_questions": [],
                     "disclaimer": "This information is for informational purposes only and does not constitute legal advice.",
+                    "tier": triage.tier,
+                    "model_name": triage.model_name,
+                    "statutory_risk": triage.statutory_risk_prediction,
                 }
 
             # Convert dataclass citations to dicts
@@ -148,7 +192,11 @@ class ChatService:
                 "requires_clarification": rag_response.requires_clarification,
                 "clarification_questions": rag_response.clarification_questions or [],
                 "disclaimer": rag_response.disclaimer,
+                "tier": triage.tier,
+                "model_name": triage.model_name,
+                "statutory_risk": triage.statutory_risk_prediction,
             }
+
         except Exception as e:
             logger.exception("Error in process_message", error=str(e))
             raise

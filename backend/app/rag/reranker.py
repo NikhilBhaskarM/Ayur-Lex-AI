@@ -24,8 +24,8 @@ class LocalReranker(Reranker):
                     def load_model():
                         try:
                             from flashrank import Ranker
-                            return Ranker(model_name=settings.RERANKER_MODEL or "ms-marco-MiniLM-L-6-v2")
-                        except ImportError:
+                            return Ranker(model_name=settings.RERANKER_MODEL or "ms-marco-MiniLM-L-12-v2")
+                        except Exception:
                             return None
                     self._model = await asyncio.to_thread(load_model)
         return self._model

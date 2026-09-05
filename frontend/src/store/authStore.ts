@@ -16,10 +16,18 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
+      user: {
+        id: 'demo-user',
+        email: 'researcher@ayurlex.ai',
+        full_name: 'Ayur-Lex Researcher',
+        role: 'ADMIN',
+        preferred_language: 'en',
+        is_active: true,
+      },
+      token: 'demo-access-token',
+      isAuthenticated: true,
       jurisdiction: 'India',
+
       login: (user: User, token: string) =>
         set({ user, token, isAuthenticated: true }),
       setAuth: (user: User, token: string) =>

@@ -60,10 +60,13 @@ export interface ChatMessageResponse {
   requires_clarification: boolean;
   clarification_questions: string[];
   disclaimer: string;
+  tier?: 'simple' | 'statutory' | 'debate' | string;
+  model_name?: string;
+  statutory_risk?: StatutoryRisk | Record<string, any>;
 }
 
 export interface Message {
-  id: string;
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   citations?: Citation[];
@@ -72,7 +75,14 @@ export interface Message {
   clarification_questions?: string[];
   disclaimer?: string;
   timestamp?: string;
+  tier?: 'simple' | 'statutory' | 'debate' | string;
+  model_name?: string;
+  statutory_risk?: StatutoryRisk | Record<string, any>;
 }
+
+export type ChatMessage = Message;
+
+
 
 export interface Conversation {
   id: string;
@@ -161,3 +171,36 @@ export interface HumanReview {
   priority?: string;
   created_at: string;
 }
+
+export type DebateAgentRole = 'applicant' | 'examiner' | 'arbiter';
+
+export interface StatutoryRisk {
+  sec_3p: string;
+  sec_3e: string;
+  bda_form3: string;
+}
+
+export interface DebateEvent {
+  agent: DebateAgentRole;
+  model?: string;
+  stage: string;
+  content: string;
+  citations: string[];
+  confidence: number;
+  tokens_per_sec?: number;
+  statutory_risk?: StatutoryRisk;
+  status?: string;
+  timestamp?: string;
+  text_chunk?: string;
+  is_turn_complete?: boolean;
+}
+
+export interface DebateSessionState {
+  status: 'idle' | 'connecting' | 'debating' | 'completed' | 'error';
+  currentSpeaker: DebateAgentRole | null;
+  currentStage: string;
+  events: DebateEvent[];
+  error?: string;
+}
+
+

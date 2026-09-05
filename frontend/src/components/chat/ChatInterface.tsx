@@ -15,6 +15,7 @@ import {
 import toast from 'react-hot-toast';
 
 import MessageBubble from './MessageBubble';
+import LegalChamberPanel from '../LegalChamberPanel';
 import { useAuthStore } from '../../store/authStore';
 import { chatApi } from '../../api/chat';
 import type { ChatMessage } from '../../types';
@@ -57,6 +58,7 @@ const ChatInterface: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
+  const [activeDebateQuery, setActiveDebateQuery] = useState<string | null>(null);
 
   const { jurisdiction } = useAuthStore();
 
@@ -94,9 +96,16 @@ const ChatInterface: React.FC = () => {
         jurisdiction: response.jurisdiction,
         clarification_questions: response.clarification_questions,
         disclaimer: response.disclaimer,
+        tier: response.tier,
+        model_name: response.model_name,
+        statutory_risk: response.statutory_risk,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      if (response.tier === 'debate') {
+        setActiveDebateQuery(messageText);
+      }
     } catch (err: any) {
       console.error(err);
 
@@ -120,10 +129,17 @@ const ChatInterface: React.FC = () => {
     setMessages([]);
     setConversationId(undefined);
     setInput('');
+    setActiveDebateQuery(null);
   };
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-full min-h-[calc(100vh-140px)] w-full flex-col lg:flex-row gap-4">
+      {/* Chat Pane */}
+      <div
+        className={`flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 ${
+          activeDebateQuery ? 'w-full lg:w-1/2' : 'w-full'
+        }`}
+      >
       {/* Header */}
       <div className="border-b border-slate-200 bg-white px-5 py-4 sm:px-7">
         <div className="flex items-center justify-between gap-4">
@@ -281,7 +297,10 @@ const ChatInterface: React.FC = () => {
                     {message.role === 'user' ? 'You' : 'AyurLegal AI'}
                   </div>
 
-                  <MessageBubble message={message} />
+                  <MessageBubble
+                    message={message}
+                    onLaunchDebate={(q) => setActiveDebateQuery(q || message.content)}
+                  />
                 </div>
               </div>
             ))}
@@ -358,7 +377,20 @@ const ChatInterface: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+
+    {/* Legal Chamber Debate Pane (Mounted ONLY when activeDebateQuery is set) */}
+    {activeDebateQuery && (
+      <div className="flex w-full lg:w-1/2 flex-col rounded-2xl border border-slate-800 bg-slate-950 shadow-xl overflow-y-auto p-2 min-h-[600px] lg:min-h-0">
+        <LegalChamberPanel
+          query={activeDebateQuery}
+          autoStart={true}
+          isCompact={true}
+          onClose={() => setActiveDebateQuery(null)}
+        />
+      </div>
+    )}
+  </div>
+);
 };
 
 export default ChatInterface;
