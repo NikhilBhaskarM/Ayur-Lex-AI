@@ -1,337 +1,390 @@
 import React, { useState } from 'react';
-import { 
-  Shield, Scale, Tag, MapPin, Package, Sprout, 
-  Lock, BookOpen, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw 
+import {
+  Sparkles,
+  ShieldCheck,
+  FileText,
+  Lightbulb,
+  Search,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  RotateCcw,
+  Scale,
+  Brain,
 } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-
-interface IPRouteResult {
-  title: string;
-  ipType: string;
-  governingAct: string;
-  keySections: string;
-  statutoryPrerequisites: string[];
-  ayurvedicSpecificNuances: string[];
-  exclusionRisks: string[];
-  actionSteps: string[];
-}
 
 const IPAssessment: React.FC = () => {
-  const jurisdiction = useAuthStore((s) => s.jurisdiction);
-  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [innovation, setInnovation] = useState('');
+  const [assessed, setAssessed] = useState(false);
 
-  const ipAssets = [
-    {
-      id: 'patent_formulation',
-      icon: Scale,
-      label: 'New Formulation / Extraction Process',
-      desc: 'Novel synergistic herbal combination, specialized extraction method, or novel delivery system',
-    },
-    {
-      id: 'trademark_brand',
-      icon: Tag,
-      label: 'Brand Name / Product Name / Logo',
-      desc: 'Distinctive commercial name, house mark, or packaging label design',
-    },
-    {
-      id: 'classical_formulation',
-      icon: BookOpen,
-      label: 'Classical Ancient Formulation',
-      desc: 'Time-tested Ayurvedic preparation straight from ancient texts (e.g., Chyawanprash, Triphala)',
-    },
-    {
-      id: 'geographical_indication',
-      icon: MapPin,
-      label: 'Regional Medicinal Plant / Traditional Variety',
-      desc: 'Herbs whose qualities are essentially attributable to regional geographical origin (e.g., Nagauri Ashwagandha)',
-    },
-    {
-      id: 'industrial_design',
-      icon: Package,
-      label: 'Packaging Shape / Aesthetic Container',
-      desc: 'Novel 3D shape of an Ayurvedic dispenser, herbal bottle, or medicinal applicator',
-    },
-    {
-      id: 'plant_variety',
-      icon: Sprout,
-      label: 'New Medicinal Plant Variety / Cultivar',
-      desc: 'Distinct, uniform, and stable bred variety of an Ayurvedic medicinal plant',
-    },
-    {
-      id: 'trade_secret',
-      icon: Lock,
-      label: 'Confidential Manufacturing Secret',
-      desc: 'Proprietary processing ratios, purification tricks, or confidential know-how kept undisclosed',
-    },
-  ];
-
-  const getRouteDetails = (assetId: string): IPRouteResult => {
-    switch (assetId) {
-      case 'patent_formulation':
-        return {
-          title: 'Patent Protection Assessment (Patents Act, 1970)',
-          ipType: 'Patent',
-          governingAct: 'The Patents Act, 1970 (as amended)',
-          keySections: 'Section 3(p), Section 3(d), Section 3(e), Section 10(4)(d)(ii)',
-          statutoryPrerequisites: [
-            'Novelty: Must not have been published anywhere in the world or documented in TKDL/classical texts.',
-            'Inventive Step: Non-obvious to a person skilled in Ayurvedic pharmacology and modern phytochemistry.',
-            'Industrial Application: Capable of industrial replication and manufacture.',
-            'Synergism Requirement (Section 3(e)): Combinations of known herbs MUST show experimental quantitative synergistic therapeutic effect over individual herbs.',
-            'Enhanced Efficacy (Section 3(d)): New forms or extracts of known substances require comparative clinical/pharmacological data demonstrating significantly superior therapeutic efficacy.',
-          ],
-          ayurvedicSpecificNuances: [
-            'Section 3(p) bars patenting of traditional knowledge or mere aggregation of known properties of components.',
-            'Mandatory biological disclosure under Section 10(4)(d)(ii) of source and geographical origin.',
-            'Mandatory NBA registration/approval under Section 6 of Biological Diversity Act before grant.',
-          ],
-          exclusionRisks: [
-            'Rejection under Section 3(p) if cited in TKDL.',
-            'Rejection under Section 3(e) if ingredients merely perform their known textbook functions.',
-            'Opposition under Section 25 on grounds of traditional folklore anticipation.',
-          ],
-          actionSteps: [
-            'Conduct comprehensive TKDL and prior art search across international patent databases.',
-            'Generate in vitro / in vivo synergism data with Combination Index (CI) calculation.',
-            'Prepare draft specification with clear biological origin disclosure.',
-            'File Form III registration with National Biodiversity Authority.',
-          ],
-        };
-
-      case 'trademark_brand':
-        return {
-          title: 'Trademark Registration Assessment (Trade Marks Act, 1999)',
-          ipType: 'Trade Mark',
-          governingAct: 'The Trade Marks Act, 1999',
-          keySections: 'Section 9(1)(b), Section 9(1)(c), Section 9(2)(b), Section 11',
-          statutoryPrerequisites: [
-            'Distinctiveness: Must distinguish applicant goods from others in the marketplace.',
-            'Non-Descriptive: Must not merely describe the herb, ingredients, or therapeutic purpose.',
-            'Class 5 (Pharmaceuticals / ASU Medicines) or Class 30 / 32 (Ayurveda Aahara / Dietary Foods) or Class 3 (Cosmetics).',
-          ],
-          ayurvedicSpecificNuances: [
-            'Names of classical preparations in First Schedule texts (e.g., Chyawanprash, Triphala, Ashwagandharishta) are PUBLICI JURIS (public domain) and CANNOT be registered by any single entity (Dabur v. Baidyanath).',
-            'Manufacturers must append their distinctive house mark (e.g., "XYZ Chyawanprash").',
-            'Section 9(2)(b) bars marks hurting religious sentiments (e.g., claiming exclusive trademark monopoly over revered deities for drugs).',
-            'Cadila Healthcare Supreme Court doctrine strictly enforces confusing similarity standards for medicinal marks.',
-          ],
-          exclusionRisks: [
-            'Objection under Section 9(1)(b) if the mark directly translates to an Ayurvedic disease or herbal ingredient.',
-            'Cancellation action by competitors if classical name is registered.',
-          ],
-          actionSteps: [
-            'Perform phonetically similar mark search on the official IP India Trade Marks Registry.',
-            'Avoid purely descriptive Sanskrit terminology as the primary trademark.',
-            'File Form TM-A under relevant classes (Class 5 for ASU medicines, Class 30 for Ayurveda Aahara).',
-          ],
-        };
-
-      case 'classical_formulation':
-        return {
-          title: 'Traditional Knowledge & Prior Art Route',
-          ipType: 'Traditional Knowledge (Defensive Protection)',
-          governingAct: 'Patents Act Section 3(p) & Biological Diversity Act 2023',
-          keySections: 'Section 3(p), Patents Act 1970; First Schedule, Drugs & Cosmetics Act 1940',
-          statutoryPrerequisites: [
-            'Belongs to codified Indian public domain.',
-            'Cannot be monopolized by patent by any company.',
-            'Free to manufacture under Form 25-D ASU Classical License with adherence to Schedule T GMP.',
-          ],
-          ayurvedicSpecificNuances: [
-            'Exempted from SBB prior intimation and ABS payments under 2023 Biodiversity Amendment Act for codified TK.',
-            'Standardized by PCIM&H in Ayurvedic Pharmacopoeia of India (API) & Ayurvedic Formulary of India (AFI).',
-          ],
-          exclusionRisks: [
-            'Any patent application filed on this formulation will be rejected under Section 3(p) via TKDL citation.',
-          ],
-          actionSteps: [
-            'Verify exact textual formula in First Schedule treatise.',
-            'Obtain State Licensing Authority classical manufacturing license.',
-            'Protect commercial identity via distinctive house trademark rather than patenting formulation.',
-          ],
-        };
-
-      case 'geographical_indication':
-        return {
-          title: 'Geographical Indication (GI) Assessment',
-          ipType: 'Geographical Indication',
-          governingAct: 'Geographical Indications of Goods (Registration and Protection) Act, 1999',
-          keySections: 'Section 2(1)(e), Section 18, Section 21',
-          statutoryPrerequisites: [
-            'Goods originating in a defined territory where unique quality/reputation is attributable to geography.',
-            'Application must be made by an Association of Producers or statutory body representing cultivators, not a single private commercial firm.',
-          ],
-          ayurvedicSpecificNuances: [
-            'Dravyaguna science recognizes "Desha" (habitat) potency variations (e.g., Nagauri Ashwagandha, Navara Rice, Waigaon Turmeric).',
-            'Authorized users gain statutory right to use the official GI tag, commanding premium export pricing and anti-counterfeiting protection.',
-          ],
-          exclusionRisks: [
-            'Rejection if applicant cannot prove historical association with the geographical territory.',
-          ],
-          actionSteps: [
-            'Form or collaborate with a regional herbal producers cooperative or association.',
-            'Collate historical, agro-climatic, and chemical fingerprinting data.',
-            'File application at GI Registry in Chennai.',
-          ],
-        };
-
-      default:
-        return {
-          title: 'Intellectual Property Strategy',
-          ipType: 'Specialized IP',
-          governingAct: 'Relevant IP Statutes',
-          keySections: 'Applicable Provisions',
-          statutoryPrerequisites: ['Assessment depending on exact asset details.'],
-          ayurvedicSpecificNuances: ['Subject to Indian statutory boundaries.'],
-          exclusionRisks: ['Ensure compliance with public domain and biodiversity rules.'],
-          actionSteps: ['Consult human legal facilitator.'],
-        };
-    }
+  const handleAssess = () => {
+    if (!title.trim() || !description.trim()) return;
+    setAssessed(true);
   };
 
-  const routeData = selectedAsset ? getRouteDetails(selectedAsset) : null;
+  const reset = () => {
+    setTitle('');
+    setDescription('');
+    setInnovation('');
+    setAssessed(false);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-6">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-purple-50 rounded-xl">
-            <Shield className="w-6 h-6 text-purple-600" />
+    <div className="space-y-6 pb-10">
+
+      {/* HERO */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-teal-950 to-emerald-900 p-7 sm:p-9 text-white shadow-xl">
+        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl" />
+        <div className="absolute -bottom-24 right-20 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="relative max-w-4xl">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-semibold text-teal-200">
+            <Sparkles size={14} />
+            AI-POWERED IP INTELLIGENCE
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1a365d]">
-              Ayurvedic IP Decision Engine & Router
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Identify the legally viable intellectual property mechanism for your Ayurvedic invention, brand, packaging, or plant variety.
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Asset Selection Grid */}
-      <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-6 space-y-4">
-        <h2 className="text-base font-semibold text-gray-900 border-b border-gray-100 pb-2">
-          Select the Primary Asset You Want to Protect:
-        </h2>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Patent & IP Assessment
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-          {ipAssets.map((asset) => {
-            const isSelected = selectedAsset === asset.id;
-            return (
-              <button
-                key={asset.id}
-                type="button"
-                onClick={() => setSelectedAsset(asset.id)}
-                className={`p-4 border rounded-xl text-left transition-all flex items-start gap-3.5 ${
-                  isSelected
-                    ? 'border-purple-600 bg-purple-50/50 ring-1 ring-purple-500 shadow-2xs'
-                    : 'border-gray-200 hover:bg-gray-50/80 hover:border-gray-300'
-                }`}
-              >
-                <div className={`p-2.5 rounded-lg shrink-0 ${isSelected ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
-                  <asset.icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">{asset.label}</h3>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{asset.desc}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+            Evaluate your Ayurvedic innovation for potential intellectual
+            property protection, prior-art considerations and documentation
+            requirements.
+          </p>
 
-      {/* Route Assessment Output */}
-      {routeData && (
-        <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-6 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-4">
-            <div>
-              <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
-                Recommended Protection Route
-              </span>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#1a365d] mt-1">
-                {routeData.title}
-              </h2>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Governing Act: {routeData.governingAct} • Key Provisions: {routeData.keySections}
-              </p>
-            </div>
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full border border-purple-200">
-              {routeData.ipType} Route
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-slate-200">
+              Patentability
+            </span>
+            <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-slate-200">
+              Prior Art
+            </span>
+            <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-slate-200">
+              Traditional Knowledge
             </span>
           </div>
-
-          {/* Statutory Prerequisites */}
-          <div className="space-y-2.5">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Statutory Prerequisites & Legal Standards</span>
-            </h3>
-            <ul className="space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
-              {routeData.statutoryPrerequisites.map((req, i) => (
-                <li key={i} className="text-xs sm:text-sm text-gray-700 flex items-start gap-2">
-                  <span className="text-purple-600 font-bold">•</span>
-                  <span>{req}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Ayurvedic Specific Nuances */}
-          <div className="space-y-2.5">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-              <Scale className="w-4 h-4 text-[#1a365d]" />
-              <span>Ayurvedic & Traditional Knowledge Specific Legal Filters</span>
-            </h3>
-            <div className="space-y-2">
-              {routeData.ayurvedicSpecificNuances.map((nuance, i) => (
-                <div key={i} className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg text-xs sm:text-sm text-gray-800">
-                  {nuance}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Exclusion Risks */}
-          <div className="space-y-2.5">
-            <h3 className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <span>Key Statutory Exclusion & Refusal Risks</span>
-            </h3>
-            <ul className="space-y-1.5">
-              {routeData.exclusionRisks.map((risk, i) => (
-                <li key={i} className="text-xs text-amber-900 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-                  ⚠️ {risk}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Action Steps */}
-          <div className="space-y-2.5 pt-2">
-            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Recommended Next Action Steps
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {routeData.actionSteps.map((step, i) => (
-                <div key={i} className="p-3.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-800 font-medium flex items-start gap-2 shadow-2xs">
-                  <span className="font-bold text-[#1a365d] bg-gray-100 w-5 h-5 rounded-full flex items-center justify-center shrink-0">
-                    {i + 1}
-                  </span>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Legal Disclaimer */}
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 text-center">
-            This information is for informational purposes only and does not constitute legal advice. Patentability and trademark registrability determinations are subject to official prosecution by the Controller General of Patents, Designs and Trade Marks.
-          </div>
         </div>
-      )}
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-5">
+
+        {/* FORM */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-3">
+
+          <div className="mb-7 flex items-start gap-3">
+            <div className="rounded-xl bg-teal-50 p-3 text-teal-700">
+              <FileText size={22} />
+            </div>
+
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">
+                Describe your innovation
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Provide enough detail for a meaningful preliminary assessment.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+
+            {/* TITLE */}
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Innovation / invention title
+              </label>
+
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Novel herbal formulation for..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/10"
+              />
+            </div>
+
+            {/* DESCRIPTION */}
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Invention description
+                </label>
+
+                <span className="text-[11px] text-slate-400">
+                  Required
+                </span>
+              </div>
+
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={7}
+                placeholder="Describe the formulation, process, composition, technology or method..."
+                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/10"
+              />
+            </div>
+
+            {/* INNOVATION */}
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                What is innovative about it?
+                <span className="ml-2 font-normal text-slate-400">
+                  Optional
+                </span>
+              </label>
+
+              <textarea
+                value={innovation}
+                onChange={(e) => setInnovation(e.target.value)}
+                rows={4}
+                placeholder="Explain what makes this different from existing solutions..."
+                className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/10"
+              />
+            </div>
+
+            <button
+              onClick={handleAssess}
+              disabled={!title.trim() || !description.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              <Sparkles size={17} />
+              Run IP Assessment
+              <ArrowRight size={17} />
+            </button>
+
+          </div>
+        </section>
+
+        {/* RESULT */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+
+          {!assessed ? (
+            <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
+                <Brain size={30} />
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-900">
+                IP assessment workspace
+              </h3>
+
+              <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
+                Enter your innovation details to generate a preliminary
+                IP assessment.
+              </p>
+
+              <div className="mt-7 grid w-full grid-cols-2 gap-3 text-left">
+
+                {[
+                  {
+                    icon: Search,
+                    title: 'Prior Art',
+                    color: 'text-teal-600',
+                    bg: 'bg-teal-50',
+                  },
+                  {
+                    icon: ShieldCheck,
+                    title: 'Protection',
+                    color: 'text-emerald-600',
+                    bg: 'bg-emerald-50',
+                  },
+                  {
+                    icon: FileText,
+                    title: 'Evidence',
+                    color: 'text-blue-600',
+                    bg: 'bg-blue-50',
+                  },
+                  {
+                    icon: Lightbulb,
+                    title: 'Novelty',
+                    color: 'text-amber-500',
+                    bg: 'bg-amber-50',
+                  },
+                ].map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <div
+                      key={item.title}
+                      className="rounded-xl border border-slate-100 bg-slate-50 p-3"
+                    >
+                      <div className={`inline-flex rounded-lg p-2 ${item.bg}`}>
+                        <Icon size={17} className={item.color} />
+                      </div>
+
+                      <p className="mt-2 text-xs font-semibold text-slate-700">
+                        {item.title}
+                      </p>
+                    </div>
+                  );
+                })}
+
+              </div>
+            </div>
+          ) : (
+            <div>
+
+              <div className="mb-6 flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                    Preliminary Assessment
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-bold text-slate-900">
+                    IP Protection Analysis
+                  </h3>
+                </div>
+
+                <button
+                  onClick={reset}
+                  title="Start again"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-800"
+                >
+                  <RotateCcw size={15} />
+                </button>
+              </div>
+
+              {/* RESULT */}
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2
+                    size={22}
+                    className="mt-0.5 shrink-0 text-emerald-600"
+                  />
+
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">
+                      Preliminary result
+                    </p>
+
+                    <p className="mt-1 text-lg font-bold text-emerald-900">
+                      Potential IP protection identified
+                    </p>
+
+                    <p className="mt-2 text-xs leading-5 text-emerald-800">
+                      The innovation may warrant further patentability and
+                      prior-art analysis.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SCORE */}
+              <div className="mt-5 rounded-2xl border border-slate-200 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Preliminary IP strength
+                  </span>
+
+                  <span className="text-lg font-bold text-teal-700">
+                    78%
+                  </span>
+                </div>
+
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full w-[78%] rounded-full bg-teal-600" />
+                </div>
+
+                <p className="mt-2 text-[11px] text-slate-400">
+                  Indicative UI score — not a legal or patentability
+                  determination.
+                </p>
+              </div>
+
+              {/* ANALYSIS */}
+              <div className="mt-5 space-y-3">
+
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+                  <Search
+                    size={19}
+                    className="mt-0.5 shrink-0 text-teal-600"
+                  />
+
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">
+                      Prior-art search
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Search relevant patent databases and existing
+                      publications before filing.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 p-4">
+                  <ShieldCheck
+                    size={19}
+                    className="mt-0.5 shrink-0 text-emerald-600"
+                  />
+
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">
+                      Patent considerations
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Evaluate novelty, inventive step and applicable
+                      exclusions.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <AlertTriangle
+                    size={19}
+                    className="mt-0.5 shrink-0 text-amber-600"
+                  />
+
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900">
+                      Traditional knowledge check
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-amber-700">
+                      Determine whether the knowledge or formulation has
+                      existing traditional-use documentation.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-700 transition hover:bg-teal-100">
+                <Scale size={16} />
+                View detailed IP report
+                <ArrowRight size={16} />
+              </button>
+
+            </div>
+          )}
+
+        </section>
+      </div>
+
+      {/* DISCLAIMER */}
+      <div className="flex items-start gap-3 rounded-2xl border border-amber-100 bg-white p-5 shadow-sm">
+        <AlertTriangle
+          size={18}
+          className="mt-0.5 shrink-0 text-amber-500"
+        />
+
+        <div>
+          <p className="text-sm font-semibold text-slate-800">
+            Important
+          </p>
+
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            This assessment provides preliminary AI-assisted intelligence and
+            does not constitute a legal opinion, patentability determination,
+            or professional legal advice.
+          </p>
+        </div>
+      </div>
+
     </div>
   );
 };

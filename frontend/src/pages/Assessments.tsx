@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { FileText, Calendar, CheckCircle2, Search, ExternalLink, Printer, Filter } from 'lucide-react';
+import {
+  FileText,
+  Calendar,
+  CheckCircle2,
+  Search,
+  Printer,
+  ArrowRight,
+  ShieldCheck,
+  Clock3,
+  ClipboardCheck,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ConfidenceBadge from '@/components/common/ConfidenceBadge';
 import type { Assessment } from '@/types';
@@ -46,7 +56,8 @@ const defaultAssessments: Assessment[] = [
       indication: 'Anti-inflammatory wound dressing',
     },
     classification_result: {
-      patent_status: 'Section 3(e) Synergism & Section 3(d) Enhanced Efficacy Data Required',
+      patent_status:
+        'Section 3(e) Synergism & Section 3(d) Enhanced Efficacy Data Required',
       statute: 'The Patents Act, 1970',
     },
     confidence: 'MEDIUM',
@@ -56,168 +67,404 @@ const defaultAssessments: Assessment[] = [
 ];
 
 const Assessments: React.FC = () => {
-  const [assessments, setAssessments] = useState<Assessment[]>(defaultAssessments);
+  const [assessments] = useState<Assessment[]>(defaultAssessments);
   const [search, setSearch] = useState('');
-  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+  const [selectedAssessment, setSelectedAssessment] =
+    useState<Assessment | null>(null);
 
   const filtered = assessments.filter(
     (a) =>
       a.assessment_type.toLowerCase().includes(search.toLowerCase()) ||
-      (a.formulation_data?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (a.formulation_data?.name || '')
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
       a.jurisdiction.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getConclusion = (assessment: Assessment) =>
+    assessment.classification_result?.classification ||
+    assessment.classification_result?.abs_status ||
+    assessment.classification_result?.patent_status ||
+    'Assessment completed';
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-[#1a365d]/10 rounded-xl">
-            <FileText className="w-6 h-6 text-[#1a365d]" />
-          </div>
+    <div className="max-w-6xl mx-auto space-y-6 pb-12">
+
+      {/* HERO */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 p-7 sm:p-8 text-white shadow-xl">
+        <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl" />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1a365d]">
-              Saved Regulatory & IP Assessments
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold tracking-widest text-teal-300">
+              <ClipboardCheck size={17} />
+              INTELLIGENCE WORKSPACE
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Saved Assessments
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Review and audit previous formulation analyses, ABS checklists, and patentability assessments.
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+              Review previous formulation analyses, ABS compliance checks and
+              intellectual property assessments from your workspace.
             </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search assessments..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-[#2c7a7b] outline-hidden bg-white"
-            />
-          </div>
           <Link
             to="/classify"
-            className="px-3.5 py-2 bg-[#1a365d] text-white rounded-lg text-xs font-semibold hover:bg-[#0f2342] shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition hover:bg-teal-50"
           >
-            + New Assessment
+            New Assessment
+            <ArrowRight size={17} />
           </Link>
         </div>
+      </section>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div className="rounded-xl bg-teal-50 p-2.5 text-teal-700">
+              <FileText size={19} />
+            </div>
+            <span className="text-xs font-semibold text-emerald-600">
+              Active
+            </span>
+          </div>
+
+          <p className="mt-4 text-2xl font-bold text-slate-900">
+            {assessments.length}
+          </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            Saved assessments
+          </p>
+        </div>
+
+        <div className="card">
+          <div className="rounded-xl bg-emerald-50 p-2.5 w-fit text-emerald-700">
+            <CheckCircle2 size={19} />
+          </div>
+
+          <p className="mt-4 text-2xl font-bold text-slate-900">
+            {assessments.filter((a) => a.status === 'completed').length}
+          </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            Completed
+          </p>
+        </div>
+
+        <div className="card">
+          <div className="rounded-xl bg-blue-50 p-2.5 w-fit text-blue-700">
+            <ShieldCheck size={19} />
+          </div>
+
+          <p className="mt-4 text-2xl font-bold text-slate-900">
+            {assessments.filter((a) => a.confidence === 'HIGH').length}
+          </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            High confidence
+          </p>
+        </div>
+
+        <div className="card">
+          <div className="rounded-xl bg-purple-50 p-2.5 w-fit text-purple-700">
+            <Clock3 size={19} />
+          </div>
+
+          <p className="mt-4 text-2xl font-bold text-slate-900">
+            2026
+          </p>
+
+          <p className="text-xs text-slate-500 mt-1">
+            Current workspace
+          </p>
+        </div>
+
       </div>
 
-      {/* List */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Left column: List of items */}
-        <div className="md:col-span-2 space-y-3">
+      {/* SEARCH */}
+      <section className="card">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+
+          <div className="relative flex-1">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <input
+              type="text"
+              placeholder="Search by assessment, formulation or jurisdiction..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/10"
+            />
+          </div>
+
+          <div className="rounded-xl bg-slate-100 px-4 py-3 text-xs font-semibold text-slate-600">
+            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+          </div>
+
+        </div>
+      </section>
+
+      {/* CONTENT */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        {/* LIST */}
+        <section className="lg:col-span-3 space-y-3">
+
           {filtered.length === 0 ? (
-            <div className="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400">
-              No saved assessments match your query.
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+              <Search className="mx-auto text-slate-300" size={38} />
+
+              <h3 className="mt-4 font-bold text-slate-900">
+                No assessments found
+              </h3>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Try another search term.
+              </p>
             </div>
           ) : (
             filtered.map((item) => {
               const isSelected = selectedAssessment?.id === item.id;
+
               return (
-                <div
+                <button
+                  type="button"
                   key={item.id}
                   onClick={() => setSelectedAssessment(item)}
-                  className={`bg-white rounded-xl border p-4.5 cursor-pointer transition-all shadow-2xs ${
+                  className={`w-full text-left rounded-2xl border p-5 transition-all ${
                     isSelected
-                      ? 'border-[#2c7a7b] ring-1 ring-[#2c7a7b] bg-[#e6fffa]/10'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
+                      ? 'border-teal-500 bg-teal-50/30 shadow-md ring-1 ring-teal-500'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
                   }`}
                 >
-                  <div className="flex justify-between items-start gap-2">
-                    <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#2c7a7b]">
-                        {item.assessment_type}
-                      </span>
-                      <h3 className="text-base font-semibold text-gray-900 mt-0.5">
-                        {item.formulation_data?.name || 'Formulation Assessment'}
+                  <div className="flex items-start justify-between gap-4">
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-teal-600">
+                          {item.assessment_type}
+                        </span>
+
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+                          {item.jurisdiction}
+                        </span>
+                      </div>
+
+                      <h3 className="mt-2 text-base font-bold text-slate-900 truncate">
+                        {item.formulation_data?.name ||
+                          'Formulation Assessment'}
                       </h3>
+
+                      <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
+                        {getConclusion(item)}
+                      </p>
                     </div>
-                    <ConfidenceBadge level={item.confidence as any || 'HIGH'} />
+
+                    <div className="shrink-0">
+                      <ConfidenceBadge
+                        level={(item.confidence as any) || 'HIGH'}
+                      />
+                    </div>
+
                   </div>
 
-                  <p className="text-xs text-gray-600 mt-2 font-medium">
-                    {item.classification_result?.classification || item.classification_result?.abs_status || item.classification_result?.patent_status}
-                  </p>
-
-                  <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-gray-100 text-[11px] text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-slate-400">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar size={13} />
                       {new Date(item.created_at).toLocaleDateString()}
                     </span>
-                    <span className="px-2 py-0.5 bg-gray-100 rounded text-gray-700 font-medium">
-                      {item.jurisdiction}
+
+                    <span className="flex items-center gap-1 text-teal-600 font-semibold">
+                      View details
+                      <ArrowRight size={13} />
                     </span>
                   </div>
-                </div>
+                </button>
               );
             })
           )}
-        </div>
 
-        {/* Right column: Detail Viewer */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-2xs h-fit space-y-4">
-          {selectedAssessment ? (
-            <>
-              <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                <h3 className="font-bold text-sm text-gray-900">Assessment Detail</h3>
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#1a365d]"
-                  title="Print Report"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Print</span>
-                </button>
-              </div>
+        </section>
 
-              <div>
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Assessment Type</span>
-                <p className="text-xs font-semibold text-[#1a365d]">{selectedAssessment.assessment_type}</p>
-              </div>
+        {/* DETAIL */}
+        <aside className="lg:col-span-2">
 
-              <div>
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Formulation Subject</span>
-                <p className="text-xs font-semibold text-gray-900">{selectedAssessment.formulation_data?.name}</p>
-                {selectedAssessment.formulation_data?.intended_use && (
-                  <p className="text-[11px] text-gray-500 mt-0.5">{selectedAssessment.formulation_data.intended_use}</p>
-                )}
-              </div>
+          <div className="sticky top-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-              <div>
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Statutory Conclusion</span>
-                <p className="text-xs text-gray-800 bg-gray-50 p-2.5 rounded-lg border border-gray-100 mt-1 font-medium">
-                  {selectedAssessment.classification_result?.classification || selectedAssessment.classification_result?.abs_status || selectedAssessment.classification_result?.patent_status}
+            {selectedAssessment ? (
+              <>
+                <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-teal-600">
+                      Assessment Detail
+                    </p>
+
+                    <h2 className="mt-1 text-lg font-bold text-slate-900">
+                      Assessment Report
+                    </h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    <Printer size={14} />
+                    Print
+                  </button>
+
+                </div>
+
+                <div className="space-y-5 mt-5">
+
+                  {/* Type */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Assessment Type
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                      {selectedAssessment.assessment_type}
+                    </p>
+                  </div>
+
+                  {/* Subject */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Subject
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold text-slate-900">
+                      {selectedAssessment.formulation_data?.name ||
+                        'Formulation Assessment'}
+                    </p>
+
+                    {selectedAssessment.formulation_data?.intended_use && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {selectedAssessment.formulation_data.intended_use}
+                      </p>
+                    )}
+
+                    {selectedAssessment.formulation_data?.origin && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        Origin: {selectedAssessment.formulation_data.origin}
+                      </p>
+                    )}
+
+                    {selectedAssessment.formulation_data?.indication && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        Indication: {selectedAssessment.formulation_data.indication}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Confidence */}
+                  <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-600">
+                        Confidence
+                      </span>
+
+                      <ConfidenceBadge
+                        level={(selectedAssessment.confidence as any) || 'HIGH'}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Conclusion */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Statutory Conclusion
+                    </p>
+
+                    <div className="mt-2 rounded-xl border border-teal-100 bg-teal-50/50 p-4">
+                      <p className="text-xs font-semibold leading-5 text-slate-800">
+                        {getConclusion(selectedAssessment)}
+                      </p>
+                    </div>
+
+                    {selectedAssessment.classification_result?.statute && (
+                      <p className="mt-2 text-[11px] leading-5 text-slate-500">
+                        <span className="font-semibold text-slate-700">
+                          Governing law:
+                        </span>{' '}
+                        {selectedAssessment.classification_result.statute}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Review */}
+                  <Link
+                    to="/review"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white transition hover:bg-teal-700"
+                  >
+                    Submit for Human Expert Review
+                    <ArrowRight size={15} />
+                  </Link>
+
+                </div>
+              </>
+            ) : (
+              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
+                  <FileText size={28} />
+                </div>
+
+                <h3 className="mt-5 font-bold text-slate-900">
+                  Select an assessment
+                </h3>
+
+                <p className="mt-2 max-w-xs text-sm leading-6 text-slate-500">
+                  Choose an assessment from the list to inspect its statutory
+                  conclusion and supporting details.
                 </p>
-                {selectedAssessment.classification_result?.statute && (
-                  <p className="text-[11px] text-gray-500 mt-1 font-mono">
-                    Governing Law: {selectedAssessment.classification_result.statute}
-                  </p>
-                )}
-              </div>
 
-              <div className="pt-2 border-t border-gray-100">
-                <Link
-                  to="/review"
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-[#d69e2e] text-[#1a365d] rounded-lg text-xs font-bold hover:bg-[#b7791f] hover:text-white transition-colors"
-                >
-                  <span>Submit for Human Expert Review</span>
-                </Link>
               </div>
-            </>
-          ) : (
-            <div className="text-center py-10 text-gray-400 text-xs">
-              <FileText className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <span>Select an assessment to view complete statutory breakdown.</span>
-            </div>
-          )}
+            )}
+
+          </div>
+        </aside>
+
+      </div>
+
+      {/* DISCLAIMER */}
+      <div className="rounded-2xl border border-amber-100 bg-white p-5">
+        <div className="flex items-start gap-3">
+          <AlertTriangleIcon />
+
+          <div>
+            <p className="text-sm font-semibold text-slate-800">
+              Assessment records
+            </p>
+
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Saved assessments are intended for review and research support.
+              Verify conclusions against current legislation, official
+              publications and qualified professional advice.
+            </p>
+          </div>
         </div>
       </div>
+
     </div>
   );
 };
+
+const AlertTriangleIcon = () => (
+  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+    <span className="text-sm font-bold">!</span>
+  </div>
+);
 
 export default Assessments;

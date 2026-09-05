@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, User, Settings, LogOut } from 'lucide-react';
+import { Menu, User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import JurisdictionSelector from '../common/JurisdictionSelector';
 
@@ -12,24 +12,33 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 lg:px-8">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur sm:px-6">
+
       <div className="flex items-center gap-4">
         <button
           type="button"
-          className="lg:hidden -ml-2 p-2 text-gray-500 hover:text-gray-700"
+          className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 lg:hidden"
           onClick={onMenuClick}
         >
-          <Menu className="h-6 w-6" aria-hidden="true" />
+          <Menu className="h-5 w-5" />
         </button>
-        <h1 className="text-xl font-semibold text-[#1a365d] hidden sm:block">
-          Ayurvedic IPR & Regulatory AI Assistant
-        </h1>
+
+        <div className="hidden sm:block">
+          <p className="text-sm font-bold text-slate-900">
+            Ayurvedic IPR Intelligence
+          </p>
+          <p className="text-[11px] text-slate-400">
+            Research • Assess • Protect
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <JurisdictionSelector />
-        
-        <select className="hidden sm:block rounded-md border-gray-300 text-sm shadow-sm focus:border-[#2c7a7b] focus:ring-[#2c7a7b]">
+      <div className="flex items-center gap-3">
+        <div className="hidden sm:block">
+          <JurisdictionSelector />
+        </div>
+
+        <select className="rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-600 outline-none focus:border-teal-500 sm:hidden">
           <option>EN</option>
           <option>HI</option>
           <option>KN</option>
@@ -38,26 +47,52 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1a365d] text-white hover:bg-[#0f2342] focus:outline-none focus:ring-2 focus:ring-[#2c7a7b] focus:ring-offset-2"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1.5 shadow-sm transition hover:border-teal-200"
           >
-            <span className="sr-only">Open user menu</span>
-            <User className="h-5 w-5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-700 to-emerald-600 text-white">
+              <User className="h-4 w-4" />
+            </div>
+
+            <div className="hidden text-left sm:block">
+              <p className="max-w-[120px] truncate text-xs font-bold text-slate-800">
+                {user?.full_name || 'User'}
+              </p>
+              <p className="text-[10px] text-slate-400">
+                {user?.role || 'USER'}
+              </p>
+            </div>
+
+            <ChevronDown className="hidden h-3.5 w-3.5 text-slate-400 sm:block" />
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-              <div className="px-4 py-2 border-b border-gray-100">
-                <p className="text-sm font-medium text-gray-900">{user?.full_name || 'User'}</p>
-                <p className="text-xs text-gray-500">{user?.email}</p>
+            <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="border-b border-slate-100 px-4 py-3">
+                <p className="text-sm font-bold text-slate-900">
+                  {user?.full_name || 'User'}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-slate-500">
+                  {user?.email}
+                </p>
               </div>
-              <a href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <Settings className="mr-2 h-4 w-4" /> Settings
-              </a>
-              <button
-                onClick={() => { logout(); setUserMenuOpen(false); }}
-                className="flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
+
+              <a
+                href="/settings"
+                className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
               >
-                <LogOut className="mr-2 h-4 w-4" /> Sign out
+                <Settings className="h-4 w-4 text-slate-400" />
+                Settings
+              </a>
+
+              <button
+                onClick={() => {
+                  logout();
+                  setUserMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
               </button>
             </div>
           )}
