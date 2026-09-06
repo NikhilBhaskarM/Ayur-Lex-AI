@@ -7,6 +7,7 @@
 [![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-DC2626.svg)](https://qdrant.tech/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://www.postgresql.org/)
 [![DPDP Act 2023](https://img.shields.io/badge/DPDP%20Act%202023-Compliant-emerald.svg)](#7-dpdp-act-2023-pii-redaction--attorney-escalation-dossier)
+[![DevSecOps Hardened](https://img.shields.io/badge/DevSecOps-OWASP%20Hardened-blueviolet.svg)](#devsecops--multi-layer-security-hardening)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An enterprise-grade, domain-grounded legal AI system designed for Indian Intellectual Property Rights (IPR), Patentability Assessments, and Regulatory Compliance across Ayurvedic, phytopharmaceutical, and herbal biotechnology innovations.
@@ -25,6 +26,7 @@ An enterprise-grade, domain-grounded legal AI system designed for Indian Intelle
 - **Biological Diversity Act (BDA) & NBA Form Auto-Copilot**: Distinguishes Section 3(2) foreign shareholding/management from Section 7 domestic entities and auto-prefills ready-to-file **NBA Form III (Rule 18)** datasets for patent applications.
 - **Section 3(e) Chou-Talalay Synergy Calculator & FER Rebuttal Parser**: Mathematically computes the Combination Index ($CI < 1.0$) to clear mere admixture hurdles and auto-generates formal written counter-arguments to Indian Patent Office First Examination Reports.
 - **DPDP Act 2023 PII Redaction & Attorney Escalation Dossiers**: Automatically sanitizes Aadhaar, PAN, emails, phone numbers, and formula codes before LLM inference, and compiles courtroom-grade Markdown/JSON handoff dossiers for Registered Patent Agents.
+- **DevSecOps & Multi-Layer Security Hardening**: Non-breaking defense-in-depth pipeline featuring OWASP security headers, a 5MB payload size limiter (HTTP 413), an in-memory sliding-window rate limiter (120 req/min with RFC telemetry headers), regex-based prompt injection/jailbreak neutralizer, dynamic CORS with wildcard bans on authenticated origins, safe startup credential masking, and DOMPurify XSS defense.
 - **Botanical Taxonomy & Knowledge Graph Topology**: Sanskrit-to-Latin binomial taxonomy mapping with bioactive chemical markers, Neo4j formulation subgraphs, and Bhashini vernacular translation scaffolding.
 - **Unified Single-Origin Architecture**: Serves both the React SPA frontend and FastAPI backend under a single port (`http://localhost:8000/`) with zero CORS overhead and built-in client-side SPA routing.
 
@@ -44,10 +46,19 @@ flowchart TB
 
     subgraph Origin ["Unified Origin (http://localhost:8000)"]
         FastAPI["FastAPI Gateway<br/>(app.main:app)"]
+        
+        subgraph SecurityPipeline ["DevSecOps Security Pipeline"]
+            SecHeaders["OWASP Security Headers<br/>(nosniff, DENY, XSS-block)"]
+            PayloadLimit["Payload Size Limiter<br/>(5MB Max, HTTP 413)"]
+            RateLimiter["In-Memory Rate Limiter<br/>(120 RPM Sliding Window)"]
+            PromptSanitizer["Prompt Injection Neutralizer<br/>(Jailbreak Filter)"]
+            CORSMiddleware["Dynamic CORS Handling<br/>(Explicit Origins & Creds)"]
+            DPDPMiddleware["DPDP Act 2023<br/>PII Sanitizer Middleware"]
+        end
+
         StaticSPA["Static SPA Mount<br/>(/frontend/dist)"]
         APIRoutes["REST API (/api/v1/* & /api/*)"]
         WSRoutes["WebSocket (/api/v1/ws/debate)"]
-        DPDPMiddleware["DPDP Act 2023<br/>Sanitizer Middleware"]
     end
 
     subgraph Intelligence ["Statutory Intelligence & RAG Core"]
@@ -83,10 +94,10 @@ flowchart TB
     end
 
     UI -->|"HTTP / WebSocket"| FastAPI
-    FastAPI --> DPDPMiddleware
-    DPDPMiddleware --> StaticSPA
-    DPDPMiddleware --> APIRoutes
-    DPDPMiddleware --> WSRoutes
+    FastAPI --> SecurityPipeline
+    SecurityPipeline --> StaticSPA
+    SecurityPipeline --> APIRoutes
+    SecurityPipeline --> WSRoutes
 
     APIRoutes --> JurisdictionEngine
     JurisdictionEngine --> Router
@@ -199,6 +210,30 @@ Accessible at `/synergy` and via endpoints `POST /api/analytics/synergy-check` &
 
 ---
 
+### 8. DevSecOps & Multi-Layer Security Hardening
+- **OWASP Defense-in-Depth Headers (`SecurityHeadersMiddleware`)**:
+  - Automatically attaches `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-XSS-Protection: 1; mode=block`, and restrictive `Permissions-Policy` to every HTTP response.
+- **Payload Size Limiter (`PayloadLimitMiddleware`)**:
+  - Enforces a 5MB maximum request body ceiling with instantaneous `HTTP 413 Content Too Large` rejections, defending against buffer overflow and memory exhaustion attacks while leaving large patent/FER claims uninhibited.
+- **Prompt Injection & Adversarial Jailbreak Neutralizer (`PromptInjectionSanitizerMiddleware`)**:
+  - Scans and neutralizes adversarial LLM prompt injections (`ignore previous instructions`, `system prompt override`, `DAN mode`, `developer mode`, `<|im_start|>`, `[INST] <<SYS>>`).
+  - Replaces attack vectors with `[NEUTRALIZED_SECURITY_MARKER]` without flagging legitimate patent, statutory, and Ayurvedic research inquiries.
+- **Sliding-Window IP Rate Limiter (`RateLimitMiddleware`)**:
+  - In-memory sliding-window IP rate limiter operating at 120 requests/minute.
+  - Injects standard RFC telemetry headers: `X-RateLimit-Limit` and `X-RateLimit-Remaining` (returns `HTTP 429 Too Many Requests` on overflow).
+  - Automatically whitelists health probes, OpenAPI schemas, static assets, and WebSocket streams.
+- **Dynamic CORS & Wildcard Restrictions**:
+  - Parses `ALLOWED_ORIGINS` from environment with secure localhost developer defaults.
+  - Strictly bars wildcard `*` when credentials (`allow_credentials=True`) are enabled.
+- **Safe Environment Audit & Secret Masking (`validate_environment`)**:
+  - Validates environment configuration on startup inside application `lifespan`.
+  - Masks credential tokens in telemetry logs (`sk-...4abc`) and gracefully engages local mock fallbacks if external LLMs or vector databases are offline.
+- **Frontend DOMPurify Sanitization (`SanitizedMarkdown.tsx`)**:
+  - Hardens all Markdown and transcript rendering in `MessageBubble.tsx` and `EscalationModal.tsx` against Stored and Reflected XSS vectors.
+  - Client-side environment strictly isolates public variables (`VITE_API_URL`).
+
+---
+
 ## Technology Stack
 
 | Layer | Technologies |
@@ -211,7 +246,7 @@ Accessible at `/synergy` and via endpoints `POST /api/analytics/synergy-check` &
 | **Frontend Framework** | React 18, Vite 6, TypeScript 5.7, TailwindCSS 3.4 |
 | **State & Networking** | Zustand 5, TanStack Query v5, Axios, Native WebSockets |
 | **Icons & Styling** | Lucide React, clsx, tailwind-merge, custom legal chamber themes |
-| **Security & Privacy** | DPDP Act 2023 PII Sanitizer Middleware, OAuth2 JWT Bearer Tokens, Prompt Injection Filter |
+| **DevSecOps & Security** | OWASP Security Headers, 5MB Payload Limiter, 120 RPM Rate Limiter, Prompt Injection Filter, Dynamic CORS, DOMPurify XSS Sanitization, DPDP Act 2023 PII Redaction, OAuth2 JWT Bearer Tokens |
 | **Containerization** | Docker, Docker Compose |
 
 ---
@@ -335,6 +370,30 @@ ALL TESTS PASSED! (10/10)
 ======================================================================
 ```
 
+### Run DevSecOps & Security Hardening Verification Suite
+Run the automated security suite verifying OWASP headers, 5MB payload limits, prompt injection neutralization, rate limiting, and dynamic CORS:
+
+```bash
+python scratch/test_security_hardening.py
+```
+
+**Security Audit Results:**
+```text
+======================================================================
+STARTING AYUR-LEX-AI DEVSECOPS & SECURITY VERIFICATION SUITE
+======================================================================
+[SECURITY TEST 1] OWASP Security Headers (nosniff, DENY, XSS-block) -> PASS
+[SECURITY TEST 2] Sliding-Window Rate Limiter (120 RPM telemetry)   -> PASS
+[SECURITY TEST 3] Dynamic CORS & Wildcard Ban                      -> PASS
+[SECURITY TEST 4] Payload Size Limiter (5MB ceiling, HTTP 413)     -> PASS
+[SECURITY TEST 5] Adversarial Prompt Injection Neutralization      -> PASS
+[SECURITY TEST 6] Safe Environment Audit & Secret Masking          -> PASS
+[SECURITY TEST 7] Regression Testing 7 Extensions & WebSockets     -> PASS
+======================================================================
+SECURITY AUDIT COMPLETE: 7/7 TESTS PASSED (100% SUCCESS)
+======================================================================
+```
+
 ### Run Backend Pytest Suite
 ```bash
 cd backend
@@ -357,7 +416,11 @@ Ayur-Lex-AI/
 │   │   │   └── v1/
 │   │   │       ├── chat.py              # Dual-Track Chat API
 │   │   │       └── debate_stream.py     # Multi-Agent WebSocket Chamber
+│   │   ├── core/
+│   │   │   ├── config.py                # Core configuration re-export & audit hooks
+│   │   │   └── security.py              # Password hashing & JWT token management
 │   │   ├── middleware/
+│   │   │   ├── security.py              # Headers, 5MB limit, rate limiter & injection sanitizer
 │   │   │   └── sanitizer.py             # DPDP Act 2023 PII Sanitizer Middleware
 │   │   ├── models/                      # SQLAlchemy async ORM models
 │   │   ├── rag/                         # Statutory reasoning & RAG pipeline
@@ -371,14 +434,15 @@ Ayur-Lex-AI/
 │   │   │   └── chat_service.py          # Chat & citation management
 │   │   ├── utils/
 │   │   │   └── taxonomy.py              # Sanskrit-to-Latin binomial engine
-│   │   ├── config.py                    # Environment settings
-│   │   └── main.py                      # FastAPI application gateway
+│   │   ├── config.py                    # Environment settings & secret masking audit
+│   │   └── main.py                      # FastAPI application gateway & static SPA mount
 │   └── requirements.txt                 # Backend Python dependencies
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── LegalChamberPanel.tsx    # Multi-Agent Chamber Podium UI
 │   │   │   ├── common/
+│   │   │   │   ├── SanitizedMarkdown.tsx # DOMPurify XSS Sanitization Component
 │   │   │   │   ├── EscalationModal.tsx  # Attorney Escalation Dossier Modal
 │   │   │   │   └── JurisdictionSelector.tsx # National vs. International Switch
 │   │   │   └── chat/
