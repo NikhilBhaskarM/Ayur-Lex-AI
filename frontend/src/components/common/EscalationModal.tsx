@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import SanitizedMarkdown from './SanitizedMarkdown';
 import { 
   ShieldCheck, 
   Download, 
@@ -195,7 +195,7 @@ export const EscalationModal: React.FC<EscalationModalProps> = ({
             <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
               {activeTab === 'preview' && (
                 <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-xs prose prose-sm max-w-none text-slate-800 leading-relaxed">
-                  <ReactMarkdown>{dossier.dossier_markdown}</ReactMarkdown>
+                  <SanitizedMarkdown>{dossier.dossier_markdown}</SanitizedMarkdown>
                 </div>
               )}
 

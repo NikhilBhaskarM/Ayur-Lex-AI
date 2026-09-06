@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
+import SanitizedMarkdown from '../common/SanitizedMarkdown';
 import { MapPin, Globe, AlertTriangle, MessageSquare, Zap, Scale, Cpu, ShieldCheck, UserCheck, Loader2 } from 'lucide-react';
 import ConfidenceBadge from '../common/ConfidenceBadge';
 import CitationCard from './CitationCard';
@@ -99,7 +99,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggesti
 
         {/* Content Body */}
         <div className="px-5 py-4 prose prose-sm max-w-none text-gray-800 leading-relaxed">
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          <SanitizedMarkdown>{message.content}</SanitizedMarkdown>
         </div>
 
         {/* Tier 3 Multi-Agent Chamber Action Banner */}

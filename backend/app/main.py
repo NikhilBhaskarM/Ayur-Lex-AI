@@ -46,6 +46,10 @@ async def lifespan(app: FastAPI):
     log = structlog.get_logger()
     log.info("Starting application", app_name=settings.APP_NAME, env=settings.APP_ENV)
 
+    # DevSecOps safe environment validation
+    from app.config import validate_environment
+    validate_environment()
+
     # Initialize database tables (development convenience)
     if settings.is_development:
         try:
@@ -83,7 +87,20 @@ def create_app() -> FastAPI:
         return RedirectResponse(url="/docs")
 
 
-    # CORS
+    # DevSecOps Security Hardening Middlewares
+    from app.middleware.security import (
+        SecurityHeadersMiddleware,
+        PayloadLimitMiddleware,
+        RateLimitMiddleware,
+        PromptInjectionSanitizerMiddleware,
+    )
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(PayloadLimitMiddleware, max_size_bytes=settings.MAX_REQUEST_SIZE_BYTES)
+    app.add_middleware(RateLimitMiddleware)
+    if getattr(settings, "SANITIZE_PROMPT_INJECTION", True):
+        app.add_middleware(PromptInjectionSanitizerMiddleware)
+
+    # CORS (Strict origin list, credentials supported, wildcard prevented)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
