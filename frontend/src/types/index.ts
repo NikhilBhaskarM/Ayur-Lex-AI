@@ -8,6 +8,11 @@ export interface User {
   created_at?: string;
 }
 
+export interface UserUpdateRequest {
+  full_name?: string;
+  preferred_language?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password?: string;
@@ -48,6 +53,11 @@ export interface ChatMessageRequest {
   message: string;
   conversation_id?: string;
   jurisdiction?: string;
+  language?: string;
+  llm_provider?: string;
+  llm_model?: string;
+  llm_api_key?: string;
+  llm_base_url?: string;
 }
 
 export interface ChatMessageResponse {
@@ -57,6 +67,9 @@ export interface ChatMessageResponse {
   citations: Citation[];
   confidence: ConfidenceResponse;
   jurisdiction: string;
+  language?: string;
+  llm_provider?: string;
+  llm_model?: string;
   requires_clarification: boolean;
   clarification_questions: string[];
   disclaimer: string;
@@ -68,10 +81,14 @@ export interface Message {
   content: string;
   citations?: Citation[];
   confidence?: ConfidenceResponse;
+  confidence_score?: number;
   jurisdiction?: string;
+  llm_provider?: string;
+  llm_model?: string;
   clarification_questions?: string[];
   disclaimer?: string;
   timestamp?: string;
+  created_at?: string;
 }
 
 export interface Conversation {

@@ -87,10 +87,17 @@ class Settings(BaseSettings):
     # --- Rate Limiting ---
     RATE_LIMIT_PER_MINUTE: int = 30
 
-    # --- Crawler ---
+    # --- Crawler (Crawl4AI) ---
     CRAWLER_USER_AGENT: str = "AyurvedaIPR-Bot/1.0"
     CRAWLER_MAX_CONCURRENT: int = 3
     CRAWLER_RATE_LIMIT_SECONDS: int = 1
+    CRAWLER_HEADLESS: bool = True
+    CRAWLER_BROWSER_TYPE: str = "chromium"
+    CRAWLER_PAGE_TIMEOUT: int = 30000
+    CRAWLER_VERBOSE: bool = False
+    CRAWLER_FOLLOW_INTERNAL_LINKS: bool = True
+    CRAWLER_MAX_DEPTH: int = 2
+    CRAWLER_MAX_PAGES_PER_SOURCE: int = 15
 
     # --- Multilingual ---
     BHASHINI_API_KEY: Optional[str] = None

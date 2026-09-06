@@ -13,6 +13,11 @@ class ChatMessageRequest(BaseModel):
     message: str
     conversation_id: Optional[UUID] = None
     jurisdiction: Optional[str] = None
+    language: Optional[str] = "en"
+    llm_provider: Optional[str] = None
+    llm_model: Optional[str] = None
+    llm_api_key: Optional[str] = None
+    llm_base_url: Optional[str] = None
 
 class CitationResponse(BaseModel):
     source_title: str
@@ -34,6 +39,9 @@ class ChatMessageResponse(BaseModel):
     requires_clarification: bool
     clarification_questions: List[str]
     disclaimer: str
+    language: Optional[str] = "en"
+    llm_provider: Optional[str] = None
+    llm_model: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -53,6 +61,8 @@ class MessageResponse(BaseModel):
     role: str
     content: str
     citations: Optional[List[dict]] = None
+    confidence: Optional[str] = None
+    confidence_score: Optional[float] = None
     confidence_data: Optional[dict] = None
     created_at: datetime
 
@@ -63,7 +73,8 @@ class ConversationDetailResponse(BaseModel):
     title: Optional[str] = None
     jurisdiction: Optional[str] = None
     status: str
-    messages: List[MessageResponse]
+    messages: List[MessageResponse] = []
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -13,7 +13,7 @@ class IngestionJobResponse(BaseModel):
     documents_processed: int
     documents_failed: int
     chunks_created: int
-    started_at: datetime
+    started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -31,4 +31,37 @@ class AdminStatsResponse(BaseModel):
 
 class IngestRequest(BaseModel):
     source_id: UUID
+    force_reindex: bool = False
+
+class IngestionLogResponse(BaseModel):
+    id: UUID
+    job_id: UUID
+    document_id: Optional[UUID] = None
+    level: str
+    message: str
+    details: Optional[dict] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CrawlJobDetailResponse(BaseModel):
+    id: UUID
+    source_id: UUID
+    source_name: Optional[str] = None
+    status: str
+    job_type: str
+    documents_found: int
+    documents_processed: int
+    documents_failed: int
+    chunks_created: int
+    errors: Optional[list] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    logs: List[IngestionLogResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CrawlAllRequest(BaseModel):
     force_reindex: bool = False

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Filter, Search, ExternalLink, ShieldCheck, Globe, MapPin, RefreshCw, BookOpen, Layers, Award, FileText } from 'lucide-react';
+import { Database, Filter, Search, ExternalLink, ShieldCheck, Globe, MapPin, RefreshCw, BookOpen, Layers, Award, FileText, Play } from 'lucide-react';
 import { sourcesApi } from '@/api/sources';
+import { adminApi } from '@/api/admin';
+import { useAuthStore } from '@/store/authStore';
+import toast from 'react-hot-toast';
 import type { Source } from '@/types';
 
 // Core authoritative public sources specified by project guidelines
@@ -163,6 +166,21 @@ const Sources: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [jurisdictionFilter, setJurisdictionFilter] = useState<'ALL' | 'India' | 'International'>('ALL');
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'ADMIN';
+  const [crawlingId, setCrawlingId] = useState<string | null>(null);
+
+  const handleCrawlSource = async (sourceId: string, sourceName: string) => {
+    setCrawlingId(sourceId);
+    try {
+      const res = await adminApi.triggerIngestion(sourceId, false);
+      toast.success(res.message || `Crawl queued for ${sourceName}! Check Admin Dashboard.`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to trigger crawl');
+    } finally {
+      setCrawlingId(null);
+    }
+  };
 
   const loadSources = async () => {
     setLoading(true);
@@ -381,7 +399,18 @@ const Sources: React.FC = () => {
                           Level {s.authority_level || 1}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-right">
+                      <td className="px-5 py-3.5 text-right flex items-center justify-end gap-2">
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleCrawlSource(s.id, s.name)}
+                            disabled={crawlingId === s.id}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-[#1a365d] hover:bg-[#152c4d] text-white rounded-md transition-colors disabled:opacity-50"
+                            title="Trigger Crawl4AI web crawl"
+                          >
+                            <Play className={`w-3 h-3 ${crawlingId === s.id ? 'animate-spin' : ''}`} />
+                            <span>{crawlingId === s.id ? 'Starting...' : 'Crawl'}</span>
+                          </button>
+                        )}
                         {s.url && (
                           <a
                             href={s.url}

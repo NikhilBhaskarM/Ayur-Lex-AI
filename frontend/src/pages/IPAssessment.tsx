@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { 
   Shield, Scale, Tag, MapPin, Package, Sprout, 
-  Lock, BookOpen, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw 
+  Lock, BookOpen, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw, Save
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
+import { ipApi, type IPAssessmentResponse } from '../api/ip';
 
 interface IPRouteResult {
   title: string;
@@ -18,7 +21,10 @@ interface IPRouteResult {
 
 const IPAssessment: React.FC = () => {
   const jurisdiction = useAuthStore((s) => s.jurisdiction);
-  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<string | null>('patent_formulation');
+  const [formulationName, setFormulationName] = useState<string>('');
+  const [saving, setSaving] = useState<boolean>(false);
+  const [savedResponse, setSavedResponse] = useState<IPAssessmentResponse | null>(null);
 
   const ipAssets = [
     {
@@ -128,68 +134,160 @@ const IPAssessment: React.FC = () => {
 
       case 'classical_formulation':
         return {
-          title: 'Traditional Knowledge & Prior Art Route',
-          ipType: 'Traditional Knowledge (Defensive Protection)',
-          governingAct: 'Patents Act Section 3(p) & Biological Diversity Act 2023',
-          keySections: 'Section 3(p), Patents Act 1970; First Schedule, Drugs & Cosmetics Act 1940',
+          title: 'Classical Ancient Formulation (Public Domain Prior Art)',
+          ipType: 'Defensive Traditional Knowledge',
+          governingAct: 'First Schedule, Drugs & Cosmetics Act, 1940 / Patents Act Section 3(p)',
+          keySections: 'Section 3(p), Patents Act, 1970',
           statutoryPrerequisites: [
-            'Belongs to codified Indian public domain.',
-            'Cannot be monopolized by patent by any company.',
-            'Free to manufacture under Form 25-D ASU Classical License with adherence to Schedule T GMP.',
+            'Formulations described in authoritative Ayurvedic treatises (Charaka Samhita, Sushruta Samhita, etc.) belong to the common heritage of India.',
+            'No commercial entity can obtain a private patent monopoly over classical textual recipes.',
           ],
           ayurvedicSpecificNuances: [
-            'Exempted from SBB prior intimation and ABS payments under 2023 Biodiversity Amendment Act for codified TK.',
-            'Standardized by PCIM&H in Ayurvedic Pharmacopoeia of India (API) & Ayurvedic Formulary of India (AFI).',
+            'Exempt from patentability under Section 3(p).',
+            'Exempt from clinical trial requirements for classical licensing under Rule 158-B.',
+            'Commercial protection is achieved through brand name trademarking and distinctive packaging design copyright.',
           ],
           exclusionRisks: [
-            'Any patent application filed on this formulation will be rejected under Section 3(p) via TKDL citation.',
+            'Absolute refusal under Section 3(p) if patent application is filed.',
+            'Revocation of any granted patent through TKDL third-party pre-grant or post-grant opposition.',
           ],
           actionSteps: [
-            'Verify exact textual formula in First Schedule treatise.',
-            'Obtain State Licensing Authority classical manufacturing license.',
-            'Protect commercial identity via distinctive house trademark rather than patenting formulation.',
+            'Apply for Classical ASU Drug Manufacturing License under Form 25-D from State Licensing Authority.',
+            'Invest in strong, arbitrary trademark brand name registration in Class 5.',
+            'Do NOT spend financial capital attempting to patent the classical herbal composition.',
           ],
         };
 
       case 'geographical_indication':
         return {
-          title: 'Geographical Indication (GI) Assessment',
+          title: 'Geographical Indication (GI) Assessment (GI Act, 1999)',
           ipType: 'Geographical Indication',
-          governingAct: 'Geographical Indications of Goods (Registration and Protection) Act, 1999',
-          keySections: 'Section 2(1)(e), Section 18, Section 21',
+          governingAct: 'The Geographical Indications of Goods (Registration and Protection) Act, 1999',
+          keySections: 'Section 2(1)(e), Section 8, Section 11',
           statutoryPrerequisites: [
-            'Goods originating in a defined territory where unique quality/reputation is attributable to geography.',
-            'Application must be made by an Association of Producers or statutory body representing cultivators, not a single private commercial firm.',
+            'Geographical Link: Reputation, quality, or characteristics must be essentially attributable to geographic origin.',
+            'Collective Application: Must be applied for by an association of producers representing regional farmers/growers.',
           ],
           ayurvedicSpecificNuances: [
-            'Dravyaguna science recognizes "Desha" (habitat) potency variations (e.g., Nagauri Ashwagandha, Navara Rice, Waigaon Turmeric).',
-            'Authorized users gain statutory right to use the official GI tag, commanding premium export pricing and anti-counterfeiting protection.',
+            'Applicable to regional Ayurvedic medicinal plants (e.g., Nagauri Ashwagandha, Malabar Pepper, Navara Rice).',
+            'Provides collective territorial monopoly preventing unauthorized commercial exploitation.',
           ],
           exclusionRisks: [
-            'Rejection if applicant cannot prove historical association with the geographical territory.',
+            'Refusal if the geographic name has become a generic trade description across India.',
           ],
           actionSteps: [
-            'Form or collaborate with a regional herbal producers cooperative or association.',
-            'Collate historical, agro-climatic, and chemical fingerprinting data.',
-            'File application at GI Registry in Chennai.',
+            'Form or partner with a registered association of regional Ayurvedic herbal cultivators.',
+            'Collate historical and agro-climatic evidence linking quality to geographic terrain.',
+            'File GI Application with the Geographical Indications Registry in Chennai.',
+          ],
+        };
+
+      case 'industrial_design':
+        return {
+          title: 'Packaging & Applicator Design Registration (Designs Act, 2000)',
+          ipType: 'Industrial Design',
+          governingAct: 'The Designs Act, 2000 & Designs Rules, 2001',
+          keySections: 'Section 4, Section 5, Class 09 (Packaging / Containers)',
+          statutoryPrerequisites: [
+            'Novelty: Shape or surface ornamentation must be globally new and unpublished.',
+            'Visual Appeal: Judged solely by aesthetic eye appeal, not functional mechanics.',
+          ],
+          ayurvedicSpecificNuances: [
+            'Protects proprietary packaging bottles, herbal droppers, copper/brass dispensers, and applicator nozzles.',
+            'Confers 10 years of initial copyright protection, extendable by 5 years to 15 years total.',
+          ],
+          exclusionRisks: [
+            'Refusal if design is purely functional or standard industry shape.',
+          ],
+          actionSteps: [
+            'Prepare 7-angle orthographic CAD drawings or photographs on white background.',
+            'File Form-1 design application with Controller General of Patents, Designs & Trade Marks.',
+          ],
+        };
+
+      case 'plant_variety':
+        return {
+          title: 'Medicinal Plant Variety Protection (PPV&FR Act, 2001)',
+          ipType: 'Plant Variety Protection',
+          governingAct: 'The Protection of Plant Varieties and Farmers Rights Act, 2001',
+          keySections: 'Section 14, Section 15 (DUS Criteria)',
+          statutoryPrerequisites: [
+            'Distinctness: Distinguishable from all known plant varieties.',
+            'Uniformity: Uniform in essential phenotypic characteristics.',
+            'Stability: Remains stable after repeated seasonal propagation.',
+          ],
+          ayurvedicSpecificNuances: [
+            'Protects novel high-bioactive cultivars of Ayurvedic medicinal plants developed through institutional breeding.',
+            'Farmers retain traditional rights to save, use, and exchange seeds.',
+          ],
+          exclusionRisks: [
+            'Rejection if plant variety fails multi-location DUS field trials.',
+          ],
+          actionSteps: [
+            'Complete multi-location DUS testing protocol with authorized ICAR / NBPGR institutes.',
+            'File registration application with the PPV&FR Authority in New Delhi.',
+          ],
+        };
+
+      case 'trade_secret':
+        return {
+          title: 'Proprietary Processing Know-How & Trade Secrets',
+          ipType: 'Trade Secret',
+          governingAct: 'Indian Contract Act, 1872 & Common Law of Breach of Confidence',
+          keySections: 'Section 27, Indian Contract Act; Common Law NDAs',
+          statutoryPrerequisites: [
+            'Secrecy: Information is not generally known or readily ascertainable.',
+            'Commercial Value: Derives competitive advantage from being confidential.',
+            'Reasonable Safeguards: Active physical, contractual, and digital security measures.',
+          ],
+          ayurvedicSpecificNuances: [
+            'Protects proprietary extraction ratios, specialized purification (Shodhana) parameters, and temperature curves.',
+            'Cannot protect publicly disclosed ingredients which must appear on Ayurvedic medicine labels.',
+          ],
+          exclusionRisks: [
+            'Immediate loss of protection upon independent reverse-engineering or uncontracted employee disclosure.',
+          ],
+          actionSteps: [
+            'Execute Non-Disclosure Agreements (NDAs) and non-compete covenants with laboratory and factory staff.',
+            'Partition proprietary manufacturing phases so no single operative possesses complete formula parameters.',
           ],
         };
 
       default:
         return {
-          title: 'Intellectual Property Strategy',
-          ipType: 'Specialized IP',
-          governingAct: 'Relevant IP Statutes',
-          keySections: 'Applicable Provisions',
-          statutoryPrerequisites: ['Assessment depending on exact asset details.'],
-          ayurvedicSpecificNuances: ['Subject to Indian statutory boundaries.'],
-          exclusionRisks: ['Ensure compliance with public domain and biodiversity rules.'],
-          actionSteps: ['Consult human legal facilitator.'],
+          title: 'Select an Asset Type',
+          ipType: 'General',
+          governingAct: 'Indian IPR Framework',
+          keySections: 'Various Acts',
+          statutoryPrerequisites: [],
+          ayurvedicSpecificNuances: [],
+          exclusionRisks: [],
+          actionSteps: [],
         };
     }
   };
 
   const routeData = selectedAsset ? getRouteDetails(selectedAsset) : null;
+
+  const handleSaveAssessment = async () => {
+    if (!selectedAsset) return;
+
+    setSaving(true);
+    try {
+      const res = await ipApi.evaluate({
+        asset_id: selectedAsset,
+        formulation_name: formulationName.trim() || undefined,
+        jurisdiction: jurisdiction || 'India',
+      });
+      setSavedResponse(res);
+      toast.success('IP protection route evaluated and saved to database!');
+    } catch (err: any) {
+      console.warn('Backend IP assessment offline:', err);
+      toast.error('Failed to save assessment to backend database');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
@@ -201,10 +299,10 @@ const IPAssessment: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-[#1a365d]">
-              Ayurvedic IP Decision Engine & Router
+              IP Protection Route Evaluator
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-              Identify the legally viable intellectual property mechanism for your Ayurvedic invention, brand, packaging, or plant variety.
+              Identify the right statutory protection pathway (Patents, Trademarks, GI, Designs, Plant Varieties, or Trade Secrets) for your Ayurvedic asset.
             </p>
           </div>
         </div>
@@ -213,17 +311,20 @@ const IPAssessment: React.FC = () => {
       {/* Asset Selection Grid */}
       <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-6 space-y-4">
         <h2 className="text-base font-semibold text-gray-900 border-b border-gray-100 pb-2">
-          Select the Primary Asset You Want to Protect:
+          Step 1: Select Your Innovation Asset Type
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {ipAssets.map((asset) => {
             const isSelected = selectedAsset === asset.id;
             return (
               <button
                 key={asset.id}
                 type="button"
-                onClick={() => setSelectedAsset(asset.id)}
+                onClick={() => {
+                  setSelectedAsset(asset.id);
+                  setSavedResponse(null);
+                }}
                 className={`p-4 border rounded-xl text-left transition-all flex items-start gap-3.5 ${
                   isSelected
                     ? 'border-purple-600 bg-purple-50/50 ring-1 ring-purple-500 shadow-2xs'
@@ -241,6 +342,48 @@ const IPAssessment: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Optional Name Input & Save */}
+        <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <input
+            type="text"
+            placeholder="Formulation or Brand Name (e.g., Dashamoola Lipid Emulsion)..."
+            value={formulationName}
+            onChange={(e) => setFormulationName(e.target.value)}
+            className="w-full sm:w-80 px-3.5 py-2 border border-gray-300 rounded-lg text-xs outline-hidden focus:ring-2 focus:ring-purple-500"
+          />
+
+          <button
+            type="button"
+            disabled={saving || !selectedAsset}
+            onClick={handleSaveAssessment}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 shrink-0"
+          >
+            {saving ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Evaluating...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-3.5 h-3.5" />
+                <span>Evaluate & Save Assessment</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {savedResponse && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 font-medium">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Assessment saved to database index!</span>
+            </span>
+            <Link to="/assessments" className="font-semibold text-emerald-800 hover:underline">
+              View in Saved Assessments →
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Route Assessment Output */}

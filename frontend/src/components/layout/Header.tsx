@@ -3,13 +3,21 @@ import { Menu, User, Settings, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import JurisdictionSelector from '../common/JurisdictionSelector';
 
+import { useTranslation } from 'react-i18next';
+
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-  const { user, logout } = useAuthStore();
+  const { i18n } = useTranslation();
+  const { user, logout, language, setLanguage } = useAuthStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang);
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 lg:px-8">
@@ -26,13 +34,18 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </h1>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <JurisdictionSelector />
         
-        <select className="hidden sm:block rounded-md border-gray-300 text-sm shadow-sm focus:border-[#2c7a7b] focus:ring-[#2c7a7b]">
-          <option>EN</option>
-          <option>HI</option>
-          <option>KN</option>
+        <select
+          value={language || i18n.language || 'en'}
+          onChange={(e) => handleLanguageChange(e.target.value)}
+          className="rounded-lg border border-gray-300 text-xs sm:text-sm font-medium text-gray-700 shadow-2xs focus:border-[#2c7a7b] focus:ring-[#2c7a7b] py-1.5 px-2.5 bg-white outline-hidden"
+          title="Select Assistant & Translation Language"
+        >
+          <option value="en">English (EN)</option>
+          <option value="hi">हिंदी (HI)</option>
+          <option value="kn">ಕನ್ನಡ (KN)</option>
         </select>
 
         <div className="relative">

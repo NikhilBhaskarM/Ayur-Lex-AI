@@ -19,7 +19,8 @@ sources_data = [
         "url": "https://www.indiacode.nic.in",
         "authority_level": 1,
         "jurisdiction": "India",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": "#content-area, .act-content, .main-content", "exclude_selectors": ["nav", "footer", ".breadcrumb", ".sidebar"]}
     },
     {
         "name": "IP India Public Databases (InPASS, Trade Marks, GI Registry)",
@@ -28,7 +29,8 @@ sources_data = [
         "url": "https://ipindia.gov.in",
         "authority_level": 1,
         "jurisdiction": "India",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".content-area, #main-content", "exclude_selectors": ["nav", "footer", ".header-top"]}
     },
     {
         "name": "National Biodiversity Authority (NBA / ABS Portal)",
@@ -37,7 +39,8 @@ sources_data = [
         "url": "https://nbaindia.org",
         "authority_level": 1,
         "jurisdiction": "India",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".main-content, #content", "exclude_selectors": ["nav", "footer", ".sidebar"]}
     },
     {
         "name": "Traditional Knowledge Digital Library (TKDL)",
@@ -46,7 +49,8 @@ sources_data = [
         "url": "https://www.tkdl.res.in",
         "authority_level": 2,
         "jurisdiction": "India",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".content, #main", "exclude_selectors": ["nav", "footer"]}
     },
     {
         "name": "The Patents Act, 1970 (as amended)",
@@ -82,7 +86,8 @@ sources_data = [
         "url": "https://fssai.gov.in",
         "authority_level": 2,
         "jurisdiction": "India",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".main-content, #content-area", "exclude_selectors": ["nav", "footer", ".sidebar"]}
     },
     {
         "name": "The Trade Marks Act, 1999",
@@ -109,7 +114,8 @@ sources_data = [
         "url": "https://www.wipo.int/tk/en/",
         "authority_level": 1,
         "jurisdiction": "International",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".main-content, article", "exclude_selectors": ["nav", "footer", ".sidebar", ".cookie-banner"]}
     },
     {
         "name": "Nagoya Protocol on Access to Genetic Resources and Benefit-Sharing",
@@ -118,7 +124,8 @@ sources_data = [
         "url": "https://www.cbd.int/abs/",
         "authority_level": 1,
         "jurisdiction": "International",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".main-content, article", "exclude_selectors": ["nav", "footer", ".sidebar"]}
     },
     {
         "name": "EU Traditional Herbal Medicinal Products Directive (Directive 2004/24/EC)",
@@ -127,7 +134,8 @@ sources_data = [
         "url": "https://www.ema.europa.eu",
         "authority_level": 2,
         "jurisdiction": "International",
-        "crawl_frequency": "monthly"
+        "crawl_frequency": "monthly",
+        "config": {"css_selector": ".main-content, article", "exclude_selectors": ["nav", "footer", ".sidebar", ".cookie-banner"]}
     }
 ]
 
@@ -150,7 +158,9 @@ async def seed_sources():
                     url=s["url"],
                     authority_level=s["authority_level"],
                     jurisdiction=s["jurisdiction"],
+                    country=s.get("country", "IN"),
                     crawl_frequency=s["crawl_frequency"],
+                    config=s.get("config"),
                     is_active=True
                 )
                 session.add(source)

@@ -40,6 +40,11 @@ class ChatService:
         message: str,
         conversation_id: Optional[uuid.UUID],
         jurisdiction: Optional[str],
+        language: Optional[str] = "en",
+        llm_provider: Optional[str] = None,
+        llm_model: Optional[str] = None,
+        llm_api_key: Optional[str] = None,
+        llm_base_url: Optional[str] = None,
     ) -> dict:
         try:
             sanitized_message = sanitize_user_input(message)
@@ -58,8 +63,8 @@ class ChatService:
                 conversation = Conversation(
                     id=uuid.uuid4(),
                     user_id=user_id,
-                    title=sanitized_message[:80],
-                    jurisdiction=jurisdiction or "india",
+                    title=sanitized_message[:60] + "..." if len(sanitized_message) > 60 else sanitized_message,
+                    jurisdiction=jurisdiction or "India",
                     status="active",
                 )
                 db.add(conversation)
@@ -91,6 +96,11 @@ class ChatService:
                     user_query=sanitized_message,
                     jurisdiction=jurisdiction or conversation.jurisdiction,
                     conversation_history=history,
+                    language=language,
+                    llm_provider=llm_provider,
+                    llm_model=llm_model,
+                    llm_api_key=llm_api_key,
+                    llm_base_url=llm_base_url,
                 )
             except Exception as e:
                 logger.exception("RAG pipeline error", error=str(e))
@@ -119,6 +129,8 @@ class ChatService:
                     "requires_clarification": False,
                     "clarification_questions": [],
                     "disclaimer": "This information is for informational purposes only and does not constitute legal advice.",
+                    "llm_provider": llm_provider,
+                    "llm_model": llm_model,
                 }
 
             # Convert dataclass citations to dicts
@@ -148,6 +160,9 @@ class ChatService:
                 "requires_clarification": rag_response.requires_clarification,
                 "clarification_questions": rag_response.clarification_questions or [],
                 "disclaimer": rag_response.disclaimer,
+                "language": language or "en",
+                "llm_provider": rag_response.metadata.get("llm_provider", llm_provider),
+                "llm_model": rag_response.metadata.get("llm_model", llm_model),
             }
         except Exception as e:
             logger.exception("Error in process_message", error=str(e))

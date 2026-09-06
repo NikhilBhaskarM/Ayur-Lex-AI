@@ -43,6 +43,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggesti
                 <span>🌍 INTERNATIONAL FRAMEWORK</span>
               </span>
             )}
+            {message.llm_model && (
+              <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] font-mono">
+                <span>🤖 {message.llm_model}</span>
+              </span>
+            )}
           </div>
           {message.confidence && <ConfidenceBadge level={message.confidence.level} />}
         </div>

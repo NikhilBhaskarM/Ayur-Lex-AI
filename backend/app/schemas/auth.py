@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from uuid import UUID
+from typing import Optional
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -10,6 +11,10 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    preferred_language: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: UUID
@@ -30,3 +35,6 @@ class TokenResponse(BaseModel):
 class TokenData(BaseModel):
     user_id: str
     role: str
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

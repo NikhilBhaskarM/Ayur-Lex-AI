@@ -58,6 +58,7 @@ class IngestionPipeline:
         file_path: Optional[str] = None,
         url: Optional[str] = None,
         title: str = "Untitled",
+        content: Optional[str] = None,
         metadata: Optional[dict] = None,
     ) -> IngestionResult:
         """
@@ -83,16 +84,24 @@ class IngestionPipeline:
         )
 
         # 1. Parse document
-        if file_path and file_path.lower().endswith(".pdf"):
+        if content:
+            from app.ingestion.parser import ParsedDocument
+            parsed = ParsedDocument(
+                title=title,
+                content=content,
+                metadata=metadata,
+                content_hash=hashlib.sha256(content.encode('utf-8')).hexdigest()
+            )
+        elif file_path and file_path.lower().endswith(".pdf"):
             parsed = await self.parser.parse_pdf(file_path)
         elif url:
             parsed = await self.parser.parse_html(url)
         elif file_path:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-            parsed = await self.parser.parse_text(content)
+                content_file = f.read()
+            parsed = await self.parser.parse_text(content_file)
         else:
-            raise ValueError("Either file_path or url must be provided")
+            raise ValueError("Either file_path, url, or content must be provided")
 
         if not parsed.content.strip():
             raise ValueError("Parsed document has no content")

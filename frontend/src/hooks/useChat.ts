@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../api/chat';
+import { useAuthStore } from '../store/authStore';
 import type { ChatMessageRequest } from '../types';
 
 export const useChat = (conversationId?: string) => {
   const queryClient = useQueryClient();
+  const language = useAuthStore((s) => s.language);
 
   const conversationsQuery = useQuery({
     queryKey: ['conversations'],
@@ -17,7 +19,11 @@ export const useChat = (conversationId?: string) => {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (data: ChatMessageRequest) => chatApi.sendMessage(data),
+    mutationFn: (data: ChatMessageRequest) =>
+      chatApi.sendMessage({
+        language: data.language || language || 'en',
+        ...data,
+      }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       if (data.conversation_id) {
