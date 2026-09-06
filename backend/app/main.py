@@ -96,10 +96,29 @@ def create_app() -> FastAPI:
     from app.api.router import api_router
     app.include_router(api_router, prefix="/api/v1")
 
+    # Modular Extension Routers (Features 1, 3, 6)
+    from app.api.triage import router as triage_router
+    app.include_router(triage_router, prefix="/api/triage", tags=["triage"])
+    app.include_router(triage_router, prefix="/api/v1/triage", tags=["triage"])
+
+    from app.api.abs_compliance import router as compliance_router
+    app.include_router(compliance_router, prefix="/api/compliance", tags=["compliance"])
+    app.include_router(compliance_router, prefix="/api/v1/compliance", tags=["compliance"])
+
+    from app.api.synergy import router as synergy_router
+    app.include_router(synergy_router, prefix="/api/analytics", tags=["synergy"])
+    app.include_router(synergy_router, prefix="/api/v1/analytics", tags=["synergy"])
+    app.include_router(synergy_router, prefix="/api/fer", tags=["fer"])
+    app.include_router(synergy_router, prefix="/api/v1/fer", tags=["fer"])
+
     # Direct mount for debate WebSocket streaming
     from app.api.v1.debate_stream import router as debate_router
     app.include_router(debate_router, prefix="/api/v1/ws", tags=["debate"])
     app.include_router(debate_router, prefix="/ws", tags=["debate"])
+
+    # DPDP Act 2023 Compliance Middleware
+    from app.middleware.sanitizer import DPDPSanitizerMiddleware
+    app.add_middleware(DPDPSanitizerMiddleware)
 
     # -----------------------------------------------------------------
     # Frontend Static Asset Mounting & SPA Client Routing (Option A)

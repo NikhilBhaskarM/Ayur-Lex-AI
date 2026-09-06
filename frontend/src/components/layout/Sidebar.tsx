@@ -14,6 +14,8 @@ import {
   X,
   Sparkles,
   Scale,
+  Compass,
+  Calculator,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -28,6 +30,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Legal Chamber', path: '/chamber', icon: Scale },
     { name: 'AI Assistant', path: '/chat', icon: MessageSquare },
+    { name: 'Triage Wizard', path: '/triage', icon: Compass },
+    { name: 'Synergy & FER', path: '/synergy', icon: Calculator },
     { name: 'Classification', path: '/classify', icon: Layers },
     { name: 'IP Assessment', path: '/ip-assessment', icon: Shield },
     { name: 'ABS Compliance', path: '/abs', icon: Leaf },

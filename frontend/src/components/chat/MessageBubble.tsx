@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { MapPin, Globe, AlertTriangle, MessageSquare, Zap, Scale, Cpu } from 'lucide-react';
+import { MapPin, Globe, AlertTriangle, MessageSquare, Zap, Scale, Cpu, ShieldCheck, UserCheck, Loader2 } from 'lucide-react';
 import ConfidenceBadge from '../common/ConfidenceBadge';
 import CitationCard from './CitationCard';
+import { EscalationModal, EscalationDossierData } from '../common/EscalationModal';
+import { apiClient } from '../../api/client';
 import type { Message } from '@/types';
 
 interface MessageBubbleProps {
@@ -13,6 +15,29 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggestion, onLaunchDebate }) => {
+  const [isEscalating, setIsEscalating] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [dossier, setDossier] = useState<EscalationDossierData | null>(null);
+
+  const handleEscalate = async () => {
+    setIsEscalating(true);
+    setShowEscalateModal(true);
+    try {
+      const res = await apiClient.post<EscalationDossierData>('/analytics/escalate', {
+        query: message.content.slice(0, 300),
+        assessment_answer: message.content,
+        statutory_risk: message.statutory_risk || {},
+        citations: message.citations || [],
+        confidence_data: message.confidence || { level: 'HIGH', score: 0.95 },
+        jurisdiction: message.jurisdiction || 'national',
+      });
+      setDossier(res.data);
+    } catch (err) {
+      console.error('Failed to generate attorney escalation dossier:', err);
+    } finally {
+      setIsEscalating(false);
+    }
+  };
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -154,12 +179,41 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggesti
           </div>
         )}
 
+        {/* Attorney Escalation Action Strip */}
+        <div className="bg-slate-50 border-t border-slate-100 px-5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+            <span>DPDP Act 2023 Compliant • Registered Patent Agent Escalation</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleEscalate}
+            disabled={isEscalating}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-900 bg-teal-100 hover:bg-teal-200 border border-teal-300 rounded-lg transition shadow-2xs cursor-pointer disabled:opacity-50"
+          >
+            {isEscalating ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-teal-700" />
+            ) : (
+              <UserCheck className="w-3.5 h-3.5 text-teal-700" />
+            )}
+            <span>Escalate to Patent Agent</span>
+          </button>
+        </div>
+
         {/* Legal Disclaimer Footer on Message */}
         <div className="bg-amber-50/50 border-t border-amber-100 px-4 py-2 flex items-center gap-2 text-[11px] text-amber-800">
           <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
           <span>{message.disclaimer || 'This information is for informational purposes only and does not constitute legal advice.'}</span>
         </div>
       </div>
+
+      <EscalationModal
+        isOpen={showEscalateModal}
+        onClose={() => setShowEscalateModal(false)}
+        dossier={dossier}
+        isLoading={isEscalating}
+      />
     </div>
   );
 };

@@ -14,6 +14,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Settings from './pages/Settings';
+import TriageWizard from './pages/TriageWizard';
+import SynergyCalculator from './pages/SynergyCalculator';
 import LegalChamberPanel from './components/LegalChamberPanel';
 import { useAuthStore } from '@/store/authStore';
 
@@ -41,6 +43,8 @@ function App() {
         <Route path="chamber" element={<div className="pb-10"><LegalChamberPanel /></div>} />
         <Route path="chat" element={<Chat />} />
         <Route path="classify" element={<Classify />} />
+        <Route path="triage" element={<TriageWizard />} />
+        <Route path="synergy" element={<SynergyCalculator />} />
         <Route path="ip-assessment" element={<IPAssessment />} />
 
         <Route path="abs" element={<ABSCompliance />} />

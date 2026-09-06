@@ -9,9 +9,13 @@ import {
   ShieldCheck,
   Clock3,
   ClipboardCheck,
+  UserCheck,
+  Loader2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ConfidenceBadge from '@/components/common/ConfidenceBadge';
+import { EscalationModal, EscalationDossierData } from '@/components/common/EscalationModal';
+import { apiClient } from '@/api/client';
 import type { Assessment } from '@/types';
 
 const defaultAssessments: Assessment[] = [
@@ -71,6 +75,33 @@ const Assessments: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedAssessment, setSelectedAssessment] =
     useState<Assessment | null>(null);
+
+  const [isEscalating, setIsEscalating] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
+  const [dossier, setDossier] = useState<EscalationDossierData | null>(null);
+
+  const handleEscalate = async () => {
+    if (!selectedAssessment) return;
+    setIsEscalating(true);
+    setShowEscalateModal(true);
+    try {
+      const summaryText = `Assessment Type: ${selectedAssessment.assessment_type}\nSubject: ${selectedAssessment.formulation_data?.name || 'Ayurvedic Formulation'}\nIntended Use: ${selectedAssessment.formulation_data?.intended_use || 'Therapeutic'}\nStatutory Result: ${selectedAssessment.classification_result?.classification || 'Adjudicated'}`;
+      const res = await apiClient.post<EscalationDossierData>('/analytics/escalate', {
+        query: selectedAssessment.formulation_data?.name || selectedAssessment.assessment_type,
+        assessment_answer: summaryText,
+        statutory_risk: { section_3p: 65, section_3e: 55, bda_clearance: 80 },
+        citations: [],
+        confidence_data: { level: selectedAssessment.confidence || 'HIGH', score: 0.92 },
+        applicant_name: 'Applicant Confidential',
+        jurisdiction: selectedAssessment.jurisdiction || 'national',
+      });
+      setDossier(res.data);
+    } catch (err) {
+      console.error('Failed to generate attorney escalation dossier:', err);
+    } finally {
+      setIsEscalating(false);
+    }
+  };
 
   const filtered = assessments.filter(
     (a) =>
@@ -314,14 +345,26 @@ const Assessments: React.FC = () => {
                     </h2>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
-                  >
-                    <Printer size={14} />
-                    Print
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleEscalate}
+                      disabled={isEscalating}
+                      className="flex items-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800 transition hover:bg-teal-100 cursor-pointer disabled:opacity-50"
+                    >
+                      {isEscalating ? <Loader2 size={14} className="animate-spin text-teal-700" /> : <UserCheck size={14} className="text-teal-700" />}
+                      Escalate to Agent
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-900"
+                    >
+                      <Printer size={14} />
+                      Print
+                    </button>
+                  </div>
 
                 </div>
 
@@ -457,6 +500,12 @@ const Assessments: React.FC = () => {
         </div>
       </div>
 
+      <EscalationModal
+        isOpen={showEscalateModal}
+        onClose={() => setShowEscalateModal(false)}
+        dossier={dossier}
+        isLoading={isEscalating}
+      />
     </div>
   );
 };

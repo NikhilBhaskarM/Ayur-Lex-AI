@@ -12,7 +12,7 @@ class ConfidenceResponse(BaseModel):
 class ChatMessageRequest(BaseModel):
     message: str
     conversation_id: Optional[UUID] = None
-    jurisdiction: Optional[str] = None
+    jurisdiction: Optional[str] = "national"
 
 class CitationResponse(BaseModel):
     source_title: str
