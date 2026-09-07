@@ -155,6 +155,9 @@ class IngestionLog(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
+from app.models.audit import AuditLog
+
+
 __all__ = [
     "User",
     "Conversation",
@@ -167,4 +170,5 @@ __all__ = [
     "LegalProvision",
     "IngestionJob",
     "IngestionLog",
+    "AuditLog",
 ]
