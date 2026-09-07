@@ -234,6 +234,29 @@ const Login: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Quick Admin Demo Credentials Helper */}
+                <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-3.5 text-xs text-teal-900">
+                  <div className="flex items-center justify-between font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="h-4 w-4 text-teal-700" />
+                      Admin Login Credentials:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('admin@ayurlex.ai');
+                        setPassword('Admin@123');
+                      }}
+                      className="font-bold text-teal-700 underline hover:text-teal-900 cursor-pointer"
+                    >
+                      Fill Admin Login
+                    </button>
+                  </div>
+                  <div className="mt-1 font-mono text-[11px] text-teal-800">
+                    email: <span className="font-semibold">admin@ayurlex.ai</span> | password: <span className="font-semibold">Admin@123</span>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading}

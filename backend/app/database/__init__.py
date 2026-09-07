@@ -81,6 +81,36 @@ async def init_db():
             expire_on_commit=False,
         )
         async_session_maker = async_session_factory
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
         logger.info("Local SQLite database initialized successfully (ayurveda_ipr.db)")
+
+    # Ensure default admin accounts exist
+    try:
+        from app.models.user import User
+        from app.core.security import hash_password
+        from sqlalchemy import select
+        import uuid
+
+        admin_pwd_hash = hash_password("Admin@123")
+        async with async_session_factory() as session:
+            for admin_email, admin_name, admin_id in [
+                ("researcher@ayurlex.ai", "Ayur-Lex Researcher", "00000000-0000-0000-0000-000000000001"),
+                ("admin@ayurlex.ai", "System Administrator", "00000000-0000-0000-0000-000000000002")
+            ]:
+                res = await session.execute(select(User).filter(User.email == admin_email))
+                user = res.scalars().first()
+                if not user:
+                    user = User(
+                        id=uuid.UUID(admin_id),
+                        email=admin_email,
+                        password_hash=admin_pwd_hash,
+                        full_name=admin_name,
+                        role="ADMIN",
+                        preferred_language="en",
+                        is_active=True
+                    )
+                    session.add(user)
+                elif user.password_hash == "demo_hash":
+                    user.password_hash = admin_pwd_hash
+            await session.commit()
+    except Exception as e:
+        logger.warning("Admin seeding skipped or error", error=str(e))

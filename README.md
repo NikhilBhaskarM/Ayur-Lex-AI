@@ -315,6 +315,21 @@ Use these curated prompts during live presentations to demonstrate the platform'
 
 ---
 
+## 🔐 Authentication & Admin Access
+
+Ayur-Lex-AI features role-based access control (RBAC) with pre-seeded credentials for development and demonstration:
+
+| Role | Email | Password | Privileges |
+| :--- | :--- | :--- | :--- |
+| **System Administrator** | `admin@ayurlex.ai` | `Admin@123` | Full access: Admin Dashboard (`/admin`), user management, audit logs, system telemetry, compliance data archives |
+| **Lead Researcher (Admin)** | `researcher@ayurlex.ai` | `Admin@123` | Full administrative & research privileges, multi-agent chamber, patent analytics |
+
+- **Default Session**: The frontend application defaults to an active pre-authenticated researcher session (`role: ADMIN`), allowing immediate access to all tools upon launching.
+- **Admin Dashboard**: Accessible in the sidebar under **Administration -> Admin Dashboard** or directly at [http://localhost:8000/admin](http://localhost:8000/admin).
+- **1-Click Login Quick-Fill**: If logged out, visiting `/login` presents an **Admin Login Credentials** card with a **"Fill Admin Login"** button that automatically pre-populates the form.
+
+---
+
 ## Quick Start Guide
 
 ### Option 1: Automated Local Setup (Windows / Linux)
