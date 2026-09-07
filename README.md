@@ -152,10 +152,10 @@ Accessible at `/triage` and via endpoint `POST /api/triage/classify`:
 - Returns governing statutes, required regulatory licenses, risk scores, actionable claim recommendations, and botanical taxonomic breakdowns.
 
 ### 2. Dual-Track Jurisdiction Switch
-- Header toggle allows switching between:
-  - **National Track (India):** Indian Patents Act 1970 (§3(p), §3(e), §3(d)), Biological Diversity Act 2002, Drugs & Cosmetics Act.
-  - **International Track:** WIPO GRATK Treaty 2024, Nagoya Protocol ABS, US FDA Botanical Guidance, EMA Herbal Monographs.
-- Injects authoritative multilateral treaty citations and cross-border commercialization guidelines into RAG responses.
+- Header toggle enables dynamic switching between:
+  - **National Track (India):** Indian Patents Act 1970 (§3(p), §3(e), §3(d)), Biological Diversity Act 2002, AYUSH regulatory guidelines. Chat responses render with the **`🇮🇳 INDIA JURISDICTION`** orange badge.
+  - **International Track:** WIPO GRATK Treaty 2024, CBD / Nagoya Protocol ABS, US FDA Botanical Drug Guidance, EMA Herbal Monographs. Chat responses render with the **`🌍 INTERNATIONAL FRAMEWORK`** blue badge.
+- Injects authoritative statutory provisions and cross-border commercialization guidelines dynamically into the RAG inference pipeline.
 
 ### 3. Biological Diversity Act (BDA) & NBA Form Auto-Copilot
 Accessible at `/abs` and via endpoint `POST /api/compliance/abs-check`:
@@ -248,6 +248,56 @@ Accessible at `/synergy` and via endpoints `POST /api/analytics/synergy-check` &
 | **Icons & Styling** | Lucide React, clsx, tailwind-merge, custom legal chamber themes |
 | **DevSecOps & Security** | OWASP Security Headers, 5MB Payload Limiter, 120 RPM Rate Limiter, Prompt Injection Filter, Dynamic CORS, DOMPurify XSS Sanitization, DPDP Act 2023 PII Redaction, OAuth2 JWT Bearer Tokens |
 | **Containerization** | Docker, Docker Compose |
+
+---
+
+## 💡 The Problem, Solution & Industry Value
+
+### 1. The Core Problem
+- **The Biopiracy & Rejection Crisis**: Over 70% of patent applications originating from Ayurvedic and herbal bio-innovations face fatal rejections at the Indian Patent Office (CGPDTM) under **Section 3(p)** (traditional knowledge bar) and **Section 3(e)** (mere admixture) or get invalidated in foreign patent offices due to unaddressed biopiracy challenges.
+- **Complex Regulatory Maze**: Indian bio-innovators must simultaneously navigate not only patent statutes, but also the **Biological Diversity Act 2002** (mandatory National Biodiversity Authority approvals prior to grant), **CDSCO Drugs & Cosmetics Rules**, and multilateral Access & Benefit Sharing (ABS) treaties (Nagoya Protocol, WIPO GRATK Treaty 2024).
+- **The Hallucination Trap of Generic AI**: General-purpose LLMs (vanilla ChatGPT, Gemini) consistently hallucinate non-existent Indian high court citations, confuse Section 3(2) foreign entities with Section 7 domestic entities under BDA, and cannot compute empirical synergy indices ($CI < 1.0$) needed to defeat Section 3(e) objections.
+
+### 2. The Solution: Ayur-Lex-AI
+Ayur-Lex-AI is an autonomous, domain-grounded legal intelligence engine engineered to safeguard Indian traditional heritage and accelerate defensible biotech patenting:
+1. **Deterministic Statutory Grounding**: Direct RAG retrieval against codified Indian statutes, TKDL classification taxonomies, and landmark precedents (*Novartis AG v. Union of India*, *Biswanath Prasad Radhey Shyam*).
+2. **Multi-Agent Courtroom Simulation**: Simulates dynamic tribunal hearings between Applicant Attorneys, Patent Examiners, and Judicial Arbiters to identify vulnerabilities prior to official filing.
+3. **Automated Regulatory Triage & NBA Copilot**: Classifies herbal formulations into 5 statutory pathways and auto-prefills official NBA Form III datasets.
+4. **Mathematical Synergism Engine**: Integrates the Chou-Talalay Combination Index ($CI$) algorithm directly into patent claim drafting to overcome Section 3(e) mere admixture hurdles.
+5. **DevSecOps Enterprise Hardening**: Zero-trust defense-in-depth architecture with OWASP security headers, sliding-window rate limiting, prompt injection neutralizers, and DPDP Act 2023 PII redaction.
+
+---
+
+## 🎯 Live Demonstration Showcase Queries
+
+Use these curated prompts during live presentations to demonstrate the platform's specialized capabilities:
+
+| Feature / Objective | Jurisdiction | Test Query to Enter | Key Behaviors to Highlight |
+| :--- | :--- | :--- | :--- |
+| **Section 3(p) & TKDL Prior Art** | 🇮🇳 National (India) | `"Can I patent a topical formulation containing Curcuma longa (Haldi) and Neem oil for wound healing?"` | Displays `🇮🇳 INDIA JURISDICTION` badge, flags §3(p) public domain bar, cross-checks TKDL, and provides claim differentiation guidance. |
+| **Section 3(e) Synergistic Combination** | 🇮🇳 National (India) | `"We have combined Ashwagandha and Brahmi extracts and observed enhanced cognitive neuroprotection compared to individual components. Can we patent this under Section 3(e)?"` | Explains mere admixture vs. synergistic interaction; points to the Chou-Talalay $CI < 1.0$ isobologram threshold. |
+| **Biological Diversity Act & NBA Form III** | 🇮🇳 National (India) | `"A German cosmetic company wants to source Red Sandalwood from Andhra Pradesh to extract polyphenols. What approvals are required?"` | Triggers Section 3(2) foreign shareholding check, explains mandatory NBA Form I / Form III filing, and ABS royalty structures. |
+| **Multi-Agent Legal Chamber Debate** | 🇮🇳 National (India) | `"Evaluate whether an isolated and concentrated active marker compound from Tulsi (Ocimum sanctum) is patentable or excluded as a discovery of a living thing."` | Launches the multi-agent debate (Claude 3.5 Sonnet, GPT-4o, DeepSeek-R1) streaming real-time applicant vs. examiner arguments. |
+| **International Biopiracy & WIPO Framework** | 🌍 International | `"How does the Nagoya Protocol and WIPO Intergovernmental Committee (IGC) protect Indian indigenous knowledge against foreign biopiracy patents at the USPTO and EPO?"` | Displays `🌍 INTERNATIONAL FRAMEWORK` badge, cites WIPO GRATK Treaty 2024, transboundary Prior Informed Consent (PIC), and Mutually Agreed Terms (MAT). |
+
+---
+
+## 👨‍⚖️ Panel & Jury Viva Defense Guide
+
+### Q1: How do you guarantee the AI doesn't hallucinate Indian patent law?
+> **Answer:** Ayur-Lex-AI employs **Domain-Constrained RAG** backed by a dense vector store (Qdrant) and deterministic statutory rules. We index verified texts: The Patents Act 1970, Patent Rules 2003, Biological Diversity Act 2002, and official CGPDTM Guidelines. When non-patentable subject matter is detected, the deterministic rule engine intercepts the generation and applies statutory bars (§3(p), §3(e), §3(d)) with verbatim legal citations, preventing fabricated answers.
+
+### Q2: How does the system clear Section 3(e) "mere admixture" objections?
+> **Answer:** Under Indian patent law, simply combining known herbal ingredients without proving synergistic efficacy is deemed an unpatentable mere admixture (*Biswanath Prasad Radhey Shyam*). Our platform incorporates the **Chou-Talalay Combination Index ($CI$)** engine. If experimental data exhibits $CI < 0.85$, the engine mathematically certifies true synergism and auto-drafts defensible patent claim language with isobologram coordinates for First Examination Report (FER) rebuttals.
+
+### Q3: Why is the Multi-Agent Chamber necessary instead of a single LLM?
+> **Answer:** Patentability assessments are multi-faceted and adversarial. By orchestrating three distinct LLMs with specialized personas—Claude as the aggressive **Applicant Attorney**, GPT-4o as the skeptical **Patent Examiner**, and DeepSeek-R1 as the **Judicial Arbiter**—the system identifies patent claim vulnerabilities and blind spots that a single model's sycophancy would miss, outputting a resilient consensus report.
+
+### Q4: How is sensitive inventor data protected from leaking?
+> **Answer:** We enforce a **DevSecOps defense-in-depth pipeline**:
+> 1. **DPDP Act 2023 PII Redaction**: Regex-masks Aadhaar, PAN, phone numbers, and formula identifiers prior to third-party LLM processing.
+> 2. **Adversarial Injection Filter**: Neutralizes prompt injection, jailbreak attempts, and system override delimiters.
+> 3. **Infrastructure Controls**: 5MB payload size ceilings, 120 RPM sliding-window rate limiting, strict CORS origin whitelisting, and OWASP security headers.
 
 ---
 
