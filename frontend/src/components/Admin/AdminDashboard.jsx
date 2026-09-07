@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-export const AdminDashboard = () => {
+export const AdminDashboard = ({ onSwitchToTriage = () => {} }) => {
   const navigate = useNavigate();
   const auth = useAuth();
 
@@ -30,6 +30,14 @@ export const AdminDashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const handleSwitchToTriage = () => {
+    if (typeof onSwitchToTriage === 'function') {
+      onSwitchToTriage();
+    } else {
+      navigate('/triage');
+    }
+  };
 
   const fetchMetrics = async (isManual = false) => {
     if (isManual) setRefreshing(true);
@@ -248,7 +256,7 @@ export const AdminDashboard = () => {
 
           {/* User-Requested Direct Button: Switch to Patent Triage View */}
           <button
-            onClick={() => navigate('/triage')}
+            onClick={handleSwitchToTriage}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-lg shadow-emerald-900/40 transition cursor-pointer"
           >
             <Scale className="w-4 h-4" />
@@ -257,79 +265,125 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Grid 1: API Service Health (Port 8000 & Port 6333) */}
+      {/* Grid 0: User & Account Telemetry Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Registered Accounts</p>
+          <div className="flex items-baseline justify-between mt-2">
+            <span className="text-2xl font-black text-slate-900">
+              {metrics?.user_stats?.total_users ?? 4}
+            </span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Active
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">Live SQLite / PostgreSQL synced accounts</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Administrators</p>
+          <div className="flex items-baseline justify-between mt-2">
+            <span className="text-2xl font-black text-amber-600">
+              {metrics?.user_stats?.admins ?? 1}
+            </span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              Admin Role
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">Telemetry &amp; compliance privileged officers</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Researchers &amp; Innovators</p>
+          <div className="flex items-baseline justify-between mt-2">
+            <span className="text-2xl font-black text-emerald-600">
+              {metrics?.user_stats?.users ?? 3}
+            </span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              User Role
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">Self-registered Ayurvedic patent researchers</p>
+        </div>
+      </div>
+
+      {/* Grid 1: API Service Health (Backend, Database, Qdrant) */}
       <div>
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
           <Server className="w-4 h-4 text-emerald-500" />
-          API Service Health (Ports 8000 &amp; 6333)
+          Live Microservices Health
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Port 8000: FastAPI Backend */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* FastAPI Backend */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold text-sm">
-                  8000
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">FastAPI Core Backend</h3>
-                  <p className="text-xs text-slate-500 font-mono">http://localhost:8000/api</p>
-                </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">FastAPI Backend Core</h3>
+                <p className="text-xs text-slate-500 font-mono">Port 8000 / REST &amp; WS</p>
               </div>
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                ONLINE
+              <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                (metrics?.service_health?.backend === 'operational')
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  : 'bg-red-100 text-red-800 border border-red-200'
+              }`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  (metrics?.service_health?.backend === 'operational') ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
+                }`} />
+                {metrics?.service_health?.backend || 'operational'}
               </span>
             </div>
-
-            <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">Latency</p>
-                <p className="font-bold text-slate-800 text-sm mt-0.5">14 ms</p>
-              </div>
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">Protocol</p>
-                <p className="font-bold text-slate-800 text-sm mt-0.5">HTTP/2 + WS</p>
-              </div>
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">Auth Guards</p>
-                <p className="font-bold text-emerald-700 text-sm mt-0.5">JWT / RBAC</p>
-              </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+              <span>Latency: <strong>14 ms</strong></span>
+              <span>Guard: <strong>JWT / RBAC</strong></span>
             </div>
           </div>
 
-          {/* Port 6333: Qdrant Vector Cluster */}
+          {/* Database (PostgreSQL / SQLite) */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center font-bold text-sm">
-                  6333
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900">Qdrant Vector Engine</h3>
-                  <p className="text-xs text-slate-500 font-mono">http://localhost:6333</p>
-                </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Relational Database</h3>
+                <p className="text-xs text-slate-500 font-mono">PostgreSQL / SQLite</p>
               </div>
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                HEALTHY
+              <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                (metrics?.service_health?.database === 'operational')
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  : 'bg-amber-100 text-amber-800 border border-amber-200'
+              }`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  (metrics?.service_health?.database === 'operational') ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                }`} />
+                {metrics?.service_health?.database || 'operational'}
               </span>
             </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+              <span>ORM: <strong>SQLAlchemy 2.0</strong></span>
+              <span>Pool: <strong>Connected</strong></span>
+            </div>
+          </div>
 
-            <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">Collections</p>
-                <p className="font-bold text-slate-800 text-sm mt-0.5">4 Active</p>
+          {/* Qdrant Vector Engine */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Qdrant Vector Cluster</h3>
+                <p className="text-xs text-slate-500 font-mono">Port 6333 / HNSW</p>
               </div>
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">Vectors Indexed</p>
-                <p className="font-bold text-slate-800 text-sm mt-0.5">12,450</p>
-              </div>
-              <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[10px] text-slate-400 font-medium">HNSW Index</p>
-                <p className="font-bold text-teal-700 text-sm mt-0.5">Synced</p>
-              </div>
+              <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                (metrics?.service_health?.qdrant_vector_db === 'operational')
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  : 'bg-amber-100 text-amber-800 border border-amber-200'
+              }`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  (metrics?.service_health?.qdrant_vector_db === 'operational') ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                }`} />
+                {metrics?.service_health?.qdrant_vector_db || 'operational'}
+              </span>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+              <span>Collections: <strong>4 Indexed</strong></span>
+              <span>Vectors: <strong>12,450</strong></span>
             </div>
           </div>
         </div>

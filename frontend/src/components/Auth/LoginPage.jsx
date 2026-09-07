@@ -15,7 +15,7 @@ import {
   Building2,
 } from 'lucide-react';
 
-export const LoginPage = ({ initialRegister = false }) => {
+export const LoginPage = ({ initialRegister = false, onLoginSuccess = () => {} }) => {
   const [isRegistering, setIsRegistering] = useState(initialRegister);
   const [portalType, setPortalType] = useState('user'); // 'user' | 'admin'
   const [username, setUsername] = useState('ayur_user');
@@ -51,6 +51,9 @@ export const LoginPage = ({ initialRegister = false }) => {
 
     try {
       const result = await login(username, password);
+      if (typeof onLoginSuccess === 'function') {
+        onLoginSuccess(result.role);
+      }
       if (result.role === 'admin') {
         navigate('/admin');
       } else {
