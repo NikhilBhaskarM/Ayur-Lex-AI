@@ -88,10 +88,11 @@ const ChatInterface: React.FC = () => {
     setIsLoading(true);
 
     try {
+      const currentJurisdiction = useAuthStore.getState().jurisdiction || 'India';
       const response = await chatApi.sendMessage({
         message: messageText,
         conversation_id: conversationId,
-        jurisdiction,
+        jurisdiction: currentJurisdiction,
       });
 
       if (response.conversation_id) {
