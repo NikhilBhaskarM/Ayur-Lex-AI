@@ -315,18 +315,39 @@ Use these curated prompts during live presentations to demonstrate the platform'
 
 ---
 
-## 🔐 Authentication & Admin Access
+## 🔐 Authentication, RBAC & Self-Service Registration
 
-Ayur-Lex-AI features role-based access control (RBAC) with pre-seeded credentials for development and demonstration:
+Ayur-Lex-AI enforces a robust **Role-Based Access Control (RBAC)** security model backed by JWT Bearer tokens, bcrypt hashing, database persistence, and audit logging.
 
-| Role | Email | Password | Privileges |
+### 1. User Roles & Seeded Accounts
+
+| Role | Username / Identifier | Password | Access Privileges & Route Guards |
 | :--- | :--- | :--- | :--- |
-| **System Administrator** | `admin@ayurlex.ai` | `Admin@123` | Full access: Admin Dashboard (`/admin`), user management, audit logs, system telemetry, compliance data archives |
-| **Lead Researcher (Admin)** | `researcher@ayurlex.ai` | `Admin@123` | Full administrative & research privileges, multi-agent chamber, patent analytics |
+| **Administrator** | `admin` *(or `admin@ayurlex.ai`)* | `AdminAyur@2026` *(or `Admin@123`)* | Full access: Admin Telemetry & Metrics (`/admin`, `/api/admin/metrics`), system health, cluster audits, LLM telemetry |
+| **Standard User** | `ayur_user` | `UserAyur@2026` | Full research access: Statutory Chat, Legal Chamber Debate, Triage Wizard, Synergy Calculator, BDA Form III Copilot |
+| **Researcher (Admin)** | `researcher@ayurlex.ai` | `Admin@123` | Pre-configured developer account with administrative privileges |
 
-- **Default Session**: The frontend application defaults to an active pre-authenticated researcher session (`role: ADMIN`), allowing immediate access to all tools upon launching.
-- **Admin Dashboard**: Accessible in the sidebar under **Administration -> Admin Dashboard** or directly at [http://localhost:8000/admin](http://localhost:8000/admin).
-- **1-Click Login Quick-Fill**: If logged out, visiting `/login` presents an **Admin Login Credentials** card with a **"Fill Admin Login"** button that automatically pre-populates the form.
+### 2. Self-Service User Registration
+- **UI Toggle**: In the login portal (`/login` or `/register`), users can seamlessly switch between **Sign In** and **Create Researcher Account** via the clean text toggle:
+  - *"Don't have an account? **Create New Account**"*
+  - *"Already have an account? **Sign In**"*
+- **Field Validations**:
+  - `username`: 3–30 characters, alphanumeric and underscores only (`^[a-zA-Z0-9_]{3,30}$`).
+  - `password`: Minimum 8 characters with client-side Confirm Password verification.
+  - Optional: Full name and affiliated institution/organization.
+- **Strict Role Elevation Guard**: All self-registered users are **strictly hardcoded to the `"user"` role** at the database layer, eliminating unauthorized administrative privilege escalation.
+- **Audit Logging**: Every successful registration creates an immutable entry in the `audit_logs` table (`action: "USER_REGISTRATION"`, `status: 201`, client IP, user agent, timestamp).
+- **Instant Login**: Upon registration (`HTTP 201 Created`), the user is automatically switched to the sign-in card with their username pre-filled and a green confirmation banner displayed.
+
+### 3. Route Protection & 403 Access Denied Shield
+- **Frontend Guard (`ProtectedRoute.jsx`)**: Wrapping `/admin` with `<ProtectedRoute requiredRole="admin">` verifies the client's role. If a standard `"user"` attempts to access `/admin`, a styled **403 Forbidden Access Denied** card is displayed with buttons to return to the dashboard or switch accounts.
+- **Backend Guard (`require_role(["admin"])`)**: Endpoints like `GET /api/admin/metrics` require the Bearer token claim to have `role === "admin"`, rejecting standard users with `HTTP 403 Forbidden` (`{"detail": "Insufficient permissions"}`).
+
+### 4. Persistent Logout Controls
+Logout options are always directly accessible across the application:
+1. **Top Header**: A dedicated red-accented **"Logout"** button is located in the top-right header, alongside the user profile dropdown.
+2. **Left Sidebar**: A user card in the sidebar footer displays the active username, role badge, and a direct **"Logout"** button.
+3. Clicking Logout completely clears JWT tokens from `localStorage` and redirects to `/login`.
 
 ---
 
@@ -400,11 +421,18 @@ Services exposed:
 
 ## Key API Endpoints
 
+### Authentication & RBAC Endpoints
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/register` | Self-service registration (3–30 char username, min 8 char password, hardcoded `"user"` role). |
+| `POST` | `/api/auth/login` | Authenticate credentials and issue JWT bearer token with assigned role. |
+| `GET` | `/api/auth/me` | Fetch authenticated researcher profile and role claims. |
+| `GET` | `/api/admin/metrics` | Protected administrative telemetry, LLM counts, Qdrant health (`role === "admin"`). |
+
 ### Core & Chat Endpoints
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/v1/health` | Service health status and database connectivity check. |
-| `POST` | `/api/v1/auth/login` | Authenticate user and issue JWT bearer token. |
 | `POST` | `/api/v1/chat` | Send a legal query through the Adaptive RAG pipeline (supports `jurisdiction: "national"` or `"international"`). |
 | `WS` | `/api/v1/ws/debate` | Real-time WebSocket streaming for the 3-agent courtroom debate chamber. |
 
