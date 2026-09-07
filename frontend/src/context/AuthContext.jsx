@@ -4,12 +4,21 @@ import { useAuthStore } from '../store/authStore';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
-  const [role, setRole] = useState(() => localStorage.getItem('role') || null);
+  const [token, setToken] = useState(() => localStorage.getItem('ayur_token') || localStorage.getItem('token') || null);
+  const [role, setRole] = useState(() => localStorage.getItem('ayur_role') || localStorage.getItem('role') || null);
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('user');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) return JSON.parse(saved);
+      const ayurUser = localStorage.getItem('ayur_username');
+      if (ayurUser) {
+        return {
+          username: ayurUser,
+          role: localStorage.getItem('ayur_role') || 'user',
+          email: `${ayurUser}@ayurlex.ai`,
+        };
+      }
+      return null;
     } catch {
       return null;
     }
@@ -64,7 +73,10 @@ export const AuthProvider = ({ children }) => {
         email: data.email || `${data.username}@ayurlex.ai`,
       };
 
-      // Store in localStorage
+      // Store in localStorage (Standard and Ayur-Session Keys)
+      localStorage.setItem('ayur_token', accessToken);
+      localStorage.setItem('ayur_role', userRole);
+      localStorage.setItem('ayur_username', data.username);
       localStorage.setItem('token', accessToken);
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('role', userRole);
@@ -95,6 +107,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    localStorage.removeItem('ayur_token');
+    localStorage.removeItem('ayur_role');
+    localStorage.removeItem('ayur_username');
     localStorage.removeItem('token');
     localStorage.removeItem('access_token');
     localStorage.removeItem('role');

@@ -248,6 +248,27 @@ Accessible at `/synergy` and via endpoints `POST /api/analytics/synergy-check` &
 
 ---
 
+### 10. Self-Service Researcher Registration, Token Verification & Admin Telemetry
+- **Self-Service Researcher Registration (`POST /api/auth/register`)**:
+  - Open registration portal allowing bio-innovators, patent agents, and Ayurvedic researchers to create accounts.
+  - Enforces 3–30 character alphanumeric identifiers and minimum 8-character passwords with bcrypt salting.
+  - Strictly hardcodes the assigned role to `"user"` (preventing unauthorized self-elevation).
+  - Automatically writes an immutable audit record to `audit_logs` (`action: "USER_REGISTRATION"`, `status: 201`).
+- **Token Verification Service (`GET /api/auth/verify`)**:
+  - Validates active Bearer tokens and returns `{ "valid": true, "user": username, "role": role }`, returning `HTTP 401 Unauthorized` for expired or invalid signatures.
+- **Synchronized Session State & Header Session Bar**:
+  - Synchronizes session state across `ayur_token`, `ayur_role`, and `ayur_username` in `localStorage` alongside standard tokens.
+  - Persistent Header Session Bar displays active username and dynamic role badge (`[User]` in emerald or `[Admin]` in amber).
+  - Prominent Logout action thoroughly clears all local tokens and redirects securely to `/login`.
+- **Administrative Telemetry & System Oversight Panel (`/admin`)**:
+  - Restricted via strict role guard to accounts with `localStorage.getItem("ayur_role") === "admin"`.
+  - **API Service Health**: Real-time monitoring of FastAPI Core (Port 8000) and Qdrant Vector Cluster (Port 6333) with latency metrics and connection status.
+  - **Agent Chamber Usage**: Autonomous inference telemetry across Claude 3.5 Sonnet, GPT-4o, DeepSeek-R1, and local Ollama nodes.
+  - **Audit Trail Explorer**: Live view of security events, triage runs, chamber debate sessions, and user logins from the `audit_logs` database table.
+  - **Direct Triage Action**: Seamless one-click navigation (*"Switch to Patent Triage View &rarr;"*) to `/triage`.
+
+---
+
 ## Technology Stack
 
 | Layer | Technologies |

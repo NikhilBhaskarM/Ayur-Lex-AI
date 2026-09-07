@@ -106,7 +106,7 @@ export const LoginPage = ({ initialRegister = false }) => {
       setPortalType('user');
       setPassword('');
       setConfirmPassword('');
-      setSuccessMessage('Account created successfully! Please sign in.');
+      setSuccessMessage('Registration successful. Please log in.');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
@@ -298,13 +298,13 @@ export const LoginPage = ({ initialRegister = false }) => {
                   <span>Registering...</span>
                 ) : (
                   <>
-                    <span>Create Account &rarr;</span>
+                    <span>Create Researcher Account &rarr;</span>
                   </>
                 )}
               </button>
 
               <div className="mt-5 text-center text-xs text-slate-400">
-                Already have an account?{' '}
+                Already have credentials?{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -415,7 +415,7 @@ export const LoginPage = ({ initialRegister = false }) => {
               </button>
 
               <div className="mt-5 text-center text-xs text-slate-400">
-                Don't have an account?{' '}
+                New innovator or researcher?{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -428,7 +428,7 @@ export const LoginPage = ({ initialRegister = false }) => {
                   }}
                   className="font-bold text-emerald-400 hover:text-emerald-300 underline cursor-pointer"
                 >
-                  Create New Account
+                  Register for Access
                 </button>
               </div>
             </form>

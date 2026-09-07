@@ -26,6 +26,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       authContext.logout();
     }
     zustandLogout();
+    localStorage.removeItem('ayur_token');
+    localStorage.removeItem('ayur_role');
+    localStorage.removeItem('ayur_username');
     localStorage.removeItem('token');
     localStorage.removeItem('access_token');
     localStorage.removeItem('role');
@@ -36,6 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
   const displayRole = (
     authContext?.role ||
+    localStorage.getItem('ayur_role') ||
     user?.role ||
     localStorage.getItem('role') ||
     'USER'
@@ -43,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
   const displayName =
     authContext?.user?.username ||
+    localStorage.getItem('ayur_username') ||
     user?.full_name ||
     user?.email?.split('@')[0] ||
     'User';
@@ -80,6 +85,22 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <option>KN</option>
         </select>
 
+        {/* Prominent Active Session Info with Username & Role Badge */}
+        <div className="hidden md:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm">
+          <span className="text-xs font-bold text-slate-800 max-w-[130px] truncate">
+            {displayName}
+          </span>
+          <span
+            className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-bold tracking-wide border ${
+              displayRole === 'ADMIN'
+                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+            }`}
+          >
+            [{displayRole === 'ADMIN' ? 'Admin' : 'User'}]
+          </span>
+        </div>
+
         {/* User profile dropdown button */}
         <div className="relative">
           <button
@@ -94,8 +115,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <p className="max-w-[120px] truncate text-xs font-bold text-slate-800">
                 {displayName}
               </p>
-              <p className="text-[10px] font-semibold text-emerald-600">
-                {displayRole}
+              <p className={`text-[10px] font-bold ${displayRole === 'ADMIN' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                [{displayRole === 'ADMIN' ? 'Admin' : 'User'}]
               </p>
             </div>
 

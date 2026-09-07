@@ -10,8 +10,8 @@ export const ProtectedRoute = ({ children, requiredRole = '' }) => {
   const zustandStore = useAuthStore();
 
   // Combine AuthContext and zustand store for robust fallback
-  const token = authContext?.token || zustandStore?.token || localStorage.getItem('token');
-  const role = (authContext?.role || zustandStore?.user?.role || localStorage.getItem('role') || '').toLowerCase();
+  const token = authContext?.token || zustandStore?.token || localStorage.getItem('ayur_token') || localStorage.getItem('token');
+  const role = (authContext?.role || zustandStore?.user?.role || localStorage.getItem('ayur_role') || localStorage.getItem('role') || '').toLowerCase();
   const user = authContext?.user || zustandStore?.user;
   const isAuthenticated = Boolean(token);
 
