@@ -50,7 +50,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggesti
     );
   }
 
-  const isIndia = (message.jurisdiction || '').toLowerCase().includes('india');
+  const jur = (message.jurisdiction || '').toLowerCase();
+  const isIndia = jur === 'national' || jur.includes('india') || (!jur.includes('international') && !jur.includes('global') && !jur.includes('wipo'));
   const citations = message.citations || [];
 
   return (
