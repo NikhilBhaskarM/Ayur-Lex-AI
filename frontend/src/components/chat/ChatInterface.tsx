@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Send,
   MapPin,
@@ -59,6 +59,16 @@ const ChatInterface: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [activeDebateQuery, setActiveDebateQuery] = useState<string | null>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
 
   const { jurisdiction } = useAuthStore();
 
@@ -299,6 +309,8 @@ const ChatInterface: React.FC = () => {
 
                   <MessageBubble
                     message={message}
+                    isLoading={isLoading}
+                    onSelectSuggestion={(q) => handleSend(q)}
                     onLaunchDebate={(q) => setActiveDebateQuery(q || message.content)}
                   />
                 </div>
@@ -329,6 +341,8 @@ const ChatInterface: React.FC = () => {
                 </div>
               </div>
             )}
+
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>

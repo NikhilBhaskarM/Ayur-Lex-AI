@@ -12,9 +12,10 @@ interface MessageBubbleProps {
   message: Message;
   onSelectSuggestion?: (question: string) => void;
   onLaunchDebate?: (query?: string) => void;
+  isLoading?: boolean;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggestion, onLaunchDebate }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggestion, onLaunchDebate, isLoading }) => {
   const [isEscalating, setIsEscalating] = useState(false);
   const [showEscalateModal, setShowEscalateModal] = useState(false);
   const [dossier, setDossier] = useState<EscalationDossierData | null>(null);
@@ -169,8 +170,9 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSelectSuggesti
                 <button
                   key={idx}
                   type="button"
+                  disabled={isLoading}
                   onClick={() => onSelectSuggestion && onSelectSuggestion(q)}
-                  className="text-xs bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 hover:border-emerald-400 font-medium px-3 py-1.5 rounded-full text-left transition-all shadow-2xs hover:shadow-xs cursor-pointer flex items-center gap-1.5"
+                  className="text-xs bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 hover:border-emerald-400 font-medium px-3 py-1.5 rounded-full text-left transition-all shadow-2xs hover:shadow-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 flex items-center gap-1.5"
                 >
                   <span className="text-emerald-500">➜</span>
                   <span>{q}</span>
