@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Menu, User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/context/AuthContext';
 import JurisdictionSelector from '../common/JurisdictionSelector';
 
 interface HeaderProps {
@@ -8,8 +10,42 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-  const { user, logout } = useAuthStore();
+  const { user, logout: zustandLogout } = useAuthStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  let authContext: any = null;
+  try {
+    authContext = useAuth();
+  } catch {
+    authContext = null;
+  }
+
+  const handleLogout = () => {
+    if (authContext?.logout) {
+      authContext.logout();
+    }
+    zustandLogout();
+    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('user');
+    setUserMenuOpen(false);
+    navigate('/login');
+  };
+
+  const displayRole = (
+    authContext?.role ||
+    user?.role ||
+    localStorage.getItem('role') ||
+    'USER'
+  ).toUpperCase();
+
+  const displayName =
+    authContext?.user?.username ||
+    user?.full_name ||
+    user?.email?.split('@')[0] ||
+    'User';
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur sm:px-6">
@@ -44,6 +80,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <option>KN</option>
         </select>
 
+        {/* User profile dropdown button */}
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -55,10 +92,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
             <div className="hidden text-left sm:block">
               <p className="max-w-[120px] truncate text-xs font-bold text-slate-800">
-                {user?.full_name || 'User'}
+                {displayName}
               </p>
-              <p className="text-[10px] text-slate-400">
-                {user?.role || 'USER'}
+              <p className="text-[10px] font-semibold text-emerald-600">
+                {displayRole}
               </p>
             </div>
 
@@ -69,11 +106,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
               <div className="border-b border-slate-100 px-4 py-3">
                 <p className="text-sm font-bold text-slate-900">
-                  {user?.full_name || 'User'}
+                  {displayName}
                 </p>
                 <p className="mt-0.5 truncate text-xs text-slate-500">
-                  {user?.email}
+                  {user?.email || `${displayName.toLowerCase()}@ayurlex.ai`}
                 </p>
+                <span className="mt-1.5 inline-block rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                  Role: {displayRole}
+                </span>
               </div>
 
               <a
@@ -85,11 +125,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               </a>
 
               <button
-                onClick={() => {
-                  logout();
-                  setUserMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 border-t border-slate-100 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
                 Sign out
@@ -97,6 +134,17 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             </div>
           )}
         </div>
+
+        {/* Dedicated Prominent Header Logout Button */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Sign out of Ayur-Lex-AI"
+          className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50/80 px-3 py-2 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-100 hover:border-red-300 hover:text-red-900 cursor-pointer"
+        >
+          <LogOut className="h-4 w-4 text-red-600" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
       </div>
     </header>
   );

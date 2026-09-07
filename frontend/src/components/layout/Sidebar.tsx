@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -16,8 +16,10 @@ import {
   Scale,
   Compass,
   Calculator,
+  LogOut,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -25,6 +27,40 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const user = useAuthStore((state) => state.user);
+  const zustandLogout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  let authContext: any = null;
+  try {
+    authContext = useAuth();
+  } catch {
+    authContext = null;
+  }
+
+  const handleLogout = () => {
+    if (authContext?.logout) {
+      authContext.logout();
+    }
+    zustandLogout();
+    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  const displayRole = (
+    authContext?.role ||
+    user?.role ||
+    localStorage.getItem('role') ||
+    'USER'
+  ).toUpperCase();
+
+  const displayName =
+    authContext?.user?.username ||
+    user?.full_name ||
+    user?.email?.split('@')[0] ||
+    'User';
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -120,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           })}
         </nav>
 
-        {user?.role === 'ADMIN' && (
+        {(user?.role?.toUpperCase() === 'ADMIN' || localStorage.getItem('role') === 'admin') && (
           <div className="mt-6 border-t border-white/10 pt-5">
             <p className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
               Administration
@@ -144,8 +180,30 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </div>
 
       {/* FOOTER */}
-      <div className="border-t border-white/10 p-3">
-        <div className="rounded-xl bg-white/[0.03] p-3">
+      <div className="border-t border-white/10 p-3 space-y-2.5">
+        {/* User Account & Logout Card */}
+        <div className="flex items-center justify-between rounded-xl bg-white/[0.04] p-2 border border-white/10">
+          <div className="flex flex-col min-w-0 pr-1.5">
+            <span className="truncate text-xs font-bold text-slate-200">
+              {displayName}
+            </span>
+            <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+              {displayRole}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Log out"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/80 border border-red-800/50 text-red-300 hover:text-white text-xs font-semibold transition cursor-pointer shrink-0"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>Logout</span>
+          </button>
+        </div>
+
+        <div className="rounded-xl bg-white/[0.03] p-2.5">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50" />
             <span className="text-xs font-semibold text-slate-300">

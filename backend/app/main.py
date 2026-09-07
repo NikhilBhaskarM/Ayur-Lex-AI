@@ -113,6 +113,11 @@ def create_app() -> FastAPI:
     from app.api.router import api_router
     app.include_router(api_router, prefix="/api/v1")
 
+    # JWT Authentication & RBAC Router (/api/auth/login, /api/auth/me, /api/admin/metrics)
+    from app.api.auth import router as auth_rbac_router
+    app.include_router(auth_rbac_router, prefix="/api", tags=["auth", "admin"])
+    app.include_router(auth_rbac_router, prefix="/api/v1", tags=["auth", "admin"])
+
     # Modular Extension Routers (Features 1, 3, 6)
     from app.api.triage import router as triage_router
     app.include_router(triage_router, prefix="/api/triage", tags=["triage"])
