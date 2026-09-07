@@ -160,11 +160,17 @@ def create_app() -> FastAPI:
         if os.path.isdir(locales_dir):
             app.mount("/locales", StaticFiles(directory=locales_dir), name="locales")
 
+        NO_CACHE_HEADERS = {
+            "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        }
+
         @app.get("/", include_in_schema=False)
         async def serve_root():
             index_path = os.path.join(dist_path, "index.html")
             if os.path.isfile(index_path):
-                return FileResponse(index_path)
+                return FileResponse(index_path, headers=NO_CACHE_HEADERS)
             raise HTTPException(status_code=404, detail="Frontend index.html not found")
 
         @app.get("/{full_path:path}", include_in_schema=False)
@@ -181,7 +187,7 @@ def create_app() -> FastAPI:
             # Fallback to index.html for client-side routing
             index_path = os.path.join(dist_path, "index.html")
             if os.path.isfile(index_path):
-                return FileResponse(index_path)
+                return FileResponse(index_path, headers=NO_CACHE_HEADERS)
             raise HTTPException(status_code=404, detail="Frontend index.html not found")
 
     return app
