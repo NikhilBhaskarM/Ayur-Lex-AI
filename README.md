@@ -28,6 +28,8 @@ An enterprise-grade, domain-grounded legal AI system designed for Indian Intelle
 - **DPDP Act 2023 PII Redaction & Attorney Escalation Dossiers**: Automatically sanitizes Aadhaar, PAN, emails, phone numbers, and formula codes before LLM inference, and compiles courtroom-grade Markdown/JSON handoff dossiers for Registered Patent Agents.
 - **DevSecOps & Multi-Layer Security Hardening**: Non-breaking defense-in-depth pipeline featuring OWASP security headers, a 5MB payload size limiter (HTTP 413), an in-memory sliding-window rate limiter (120 req/min with RFC telemetry headers), regex-based prompt injection/jailbreak neutralizer, dynamic CORS with wildcard bans on authenticated origins, safe startup credential masking, and DOMPurify XSS defense.
 - **Botanical Taxonomy & Knowledge Graph Topology**: Sanskrit-to-Latin binomial taxonomy mapping with bioactive chemical markers, Neo4j formulation subgraphs, and Bhashini vernacular translation scaffolding.
+- **Interactive Clarification & Direct Follow-up Dispatch**: Generates dynamic follow-up prompt chips on assistant responses. Clicking any chip immediately dispatches the inquiry to the reasoning pipeline with auto-scroll and concurrent request locks.
+- **Cache-Control & Zero-Stale Client Architecture**: Root and SPA catch-all routes enforce `Cache-Control: no-cache, no-store, must-revalidate, max-age=0` to eliminate stale asset caching across browsers, paired with resilient dual-track jurisdiction telemetry (`India (National)` vs `international`).
 - **Unified Single-Origin Architecture**: Serves both the React SPA frontend and FastAPI backend under a single port (`http://localhost:8000/`) with zero CORS overhead and built-in client-side SPA routing.
 
 ---
@@ -231,6 +233,18 @@ Accessible at `/synergy` and via endpoints `POST /api/analytics/synergy-check` &
 - **Frontend DOMPurify Sanitization (`SanitizedMarkdown.tsx`)**:
   - Hardens all Markdown and transcript rendering in `MessageBubble.tsx` and `EscalationModal.tsx` against Stored and Reflected XSS vectors.
   - Client-side environment strictly isolates public variables (`VITE_API_URL`).
+
+---
+
+### 9. Interactive Follow-up Engine & Zero-Stale Client Architecture
+- **Interactive Question Chips**:
+  - Automatically extracts follow-up questions from the General AI / RAG pipeline (`clarification_questions`).
+  - Clicking any chip dispatches `handleSend(q)` directly to the API, displaying the query as a user bubble and fetching an in-depth response.
+  - Features smooth auto-scrolling (`messagesEndRef`) and button disable guards (`isLoading`) during generation.
+- **Zero-Stale Bundle Directives**:
+  - FastAPI mounts `/` and `/{full_path:path}` with `Cache-Control: no-cache, no-store, must-revalidate, max-age=0` to guarantee browsers always execute the latest production bundle without manual cache-clearing.
+- **Resilient Dual-Track Jurisdiction Badging**:
+  - Responses return `"India (National)"` for domestic tracks and `"international"` for multilateral tracks, ensuring both new and cached client sessions render the **`[📍 🇮🇳 INDIA JURISDICTION]`** orange badge and **`[🌐 🌍 INTERNATIONAL FRAMEWORK]`** blue badge consistently.
 
 ---
 
